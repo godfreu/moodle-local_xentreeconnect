@@ -46,3 +46,6 @@ $string['testlaunch'] = 'Uji peluncuran';
 $string['launchunavailable'] = 'Xentree Connect sedang tidak tersedia. Silakan hubungi administrator.';
 $string['redirecting'] = 'Mengarahkan Anda ke Xentree…';
 $string['continuetoxentree'] = 'Lanjut ke Xentree';
+$string['privacy:metadata:xentree'] = 'Saat pengguna memulai alur Connect (misalnya dengan tombol "Hubungkan dengan Xentree"), plugin ini mengirim data di bawah ke Xentree, layanan pembelajaran eksternal. Plugin sendiri tidak menyimpan data pribadi di Moodle.';
+$string['privacy:metadata:xentree:userid'] = 'ID pengguna Moodle, dikirim sebagai pengenal "moodle-user-<ID>".';
+$string['privacy:metadata:xentree:email'] = 'Alamat email pengguna, dikirim hanya jika alamatnya valid.';

@@ -27,5 +27,10 @@ function xmldb_local_xentreeconnect_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026101201, 'local', 'xentreeconnect');
     }
 
+    if ($oldversion < 2026101202) {
+        // 0.1.1 build 3: privacy provider added. Nothing to migrate; the bump refreshes Moodle's class cache.
+        upgrade_plugin_savepoint(true, 2026101202, 'local', 'xentreeconnect');
+    }
+
     return true;
 }

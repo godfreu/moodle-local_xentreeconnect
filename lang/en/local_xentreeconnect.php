@@ -46,3 +46,6 @@ $string['testlaunch'] = 'Test launch';
 $string['launchunavailable'] = 'Xentree Connect is not available right now. Please contact your administrator.';
 $string['redirecting'] = 'Taking you to Xentree…';
 $string['continuetoxentree'] = 'Continue to Xentree';
+$string['privacy:metadata:xentree'] = 'When a user starts the Connect flow (for example with the "Connect with Xentree" button), this plugin sends the data below to Xentree, an external learning service. The plugin itself stores no personal data in Moodle.';
+$string['privacy:metadata:xentree:userid'] = 'The Moodle user ID, sent as the identifier "moodle-user-<ID>".';
+$string['privacy:metadata:xentree:email'] = 'The e-mail address of the user, sent only when it is a valid address.';

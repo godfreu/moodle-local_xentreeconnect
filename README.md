@@ -74,7 +74,22 @@ Without a Moodle checkout, with a standalone PHPUnit:
 phpunit --bootstrap tests/standalone/bootstrap.php --test-suffix _test.php tests
 ```
 
-## Notes
+## Before production
 
-- The private key is stored unencrypted in the Moodle database. Fine for a demo; for production use a secret manager.
-- Changing the key requires updating the JWKS in Xentree, otherwise launches fail with HTTP 401.
+This plugin is a demo-grade beta. Before using it with real learners:
+
+- **Fix private key storage.** The key is currently saved unencrypted in the Moodle database (and shown to anyone who
+  can open the plugin settings). Move it to a secret store, for example `config.php` or an environment variable read
+  by the plugin, and restrict who can edit the settings.
+- **Rotate keys deliberately.** Changing the key means registering the new JWKS in Xentree first, otherwise launches
+  fail with HTTP 401. Use a new `kid` for each key.
+- **Review the consent wording** shown by Xentree with your data-protection adviser. Activity and learning data is
+  not sent to Moodle yet.
+- Set a real policy link (`policy_url`) on the integration in Xentree; the consent screen otherwise says none was given.
+
+## Privacy
+
+The plugin stores no personal data in Moodle. When a user starts the Connect flow it sends their Moodle user ID (as
+`moodle-user-<id>`) and, if valid, their e-mail address to Xentree. This is declared through Moodle's Privacy API
+(`classes/privacy/provider.php`), so it appears in the site's privacy registry. There is nothing local to export or
+delete; the provider implements the interfaces with empty methods on purpose.
