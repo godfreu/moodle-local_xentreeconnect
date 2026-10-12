@@ -8,15 +8,14 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_heading(
         'local_xentreeconnect/header',
         get_string('settingsheader', 'local_xentreeconnect'),
-        ''
+        get_string('settingsheaderdesc', 'local_xentreeconnect', (new moodle_url('/local/xentreeconnect/index.php'))->out(false))
     ));
 
-    $settings->add(new admin_setting_configtext(
+    $settings->add(new \local_xentreeconnect\admin_setting_httpsurl(
         'local_xentreeconnect/baseurl',
         get_string('baseurl', 'local_xentreeconnect'),
         get_string('baseurldesc', 'local_xentreeconnect'),
-        'https://app.xentree.ai',
-        PARAM_URL
+        'https://my.xentree.ai'
     ));
 
     $settings->add(new admin_setting_configtext(
@@ -30,8 +29,8 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/issuer',
         get_string('issuer', 'local_xentreeconnect'),
-        get_string('issuerdesc', 'local_xentreeconnect'),
-        'https://moodle.example.com',
+        get_string('issuerdesc', 'local_xentreeconnect', $CFG->wwwroot),
+        '',
         PARAM_URL
     ));
 
@@ -51,21 +50,25 @@ if ($hassiteconfig) {
         PARAM_ALPHANUMEXT
     ));
 
-    $settings->add(new admin_setting_configtextarea(
-        'local_xentreeconnect/privatekeypem',
-        get_string('privatekeypem', 'local_xentreeconnect'),
-        get_string('privatekeypemdesc', 'local_xentreeconnect'),
-        "-----BEGIN PRIVATE KEY-----\n\n-----END PRIVATE KEY-----\n",
-        PARAM_RAW
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/kid',
+        get_string('kid', 'local_xentreeconnect'),
+        get_string('kiddesc', 'local_xentreeconnect'),
+        '',
+        PARAM_TEXT
     ));
 
-    $settings->add(new admin_setting_configtextarea(
-        'local_xentreeconnect/jwksjson',
-        get_string('jwksjson', 'local_xentreeconnect'),
-        get_string('jwksjsondesc', 'local_xentreeconnect'),
-        '{"keys": []}',
-        PARAM_RAW
+    $settings->add(new \local_xentreeconnect\admin_setting_privatekey(
+        'local_xentreeconnect/privatekeypem',
+        get_string('privatekeypem', 'local_xentreeconnect'),
+        get_string('privatekeypemdesc', 'local_xentreeconnect')
     ));
 
     $ADMIN->add('localplugins', $settings);
+    $ADMIN->add('localplugins', new admin_externalpage(
+        'local_xentreeconnect_status',
+        get_string('statuspage', 'local_xentreeconnect'),
+        new moodle_url('/local/xentreeconnect/index.php'),
+        'moodle/site:config'
+    ));
 }

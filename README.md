@@ -1,94 +1,62 @@
-# Xentree Moodle demo plugin
+# Xentree Connect for Moodle (local_xentreeconnect)
 
-This folder contains a minimal Moodle plugin scaffold for a client-side demo of the Xentree Connect flow.
+Beta plugin (0.1.1) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
+JWT launch assertion for the logged-in Moodle user and sends the learner to Xentree.
 
-Important:
-- This is a demo scaffold, not a production-ready integration.
-- In production, keep private keys in a secure secret store, not in the repository.
-- Use this only to show the flow to a client during a staged walkthrough.
+Requires Moodle 4.4 or later (tested on 5.2).
 
-## Goal
+## What an admin has to do
 
-Show how Moodle can act as a trusted platform and send a signed launch assertion to Xentree Connect. The plugin demonstrates the client-side flow used by Xentree Connect:
+1. **Install** the plugin (below) and run the upgrade.
+2. **Generate an RSA key pair** (outside Moodle) and choose a key ID (`kid`):
+   ```bash
+   openssl genrsa -out moodle-connect.pem 2048
+   ```
+3. **Fill the plugin settings** (Site administration → Plugins → Local plugins → Xentree Connect):
 
-1. Moodle builds a signed JWT assertion.
-2. Moodle POSTs it to Xentree `/connect/v1/launch/{client_id}`.
-3. Xentree validates `iss`, `aud`, `sub`, `organization_id`, `iat`, `exp`, and `jti`.
-4. Xentree redirects the browser to a consent screen.
-5. After consent, Xentree creates the identity binding and signs the user into the org.
+   | Setting | Value |
+   |---|---|
+   | Xentree base URL | `https://my.xentree.ai` or the organisation's custom domain (HTTPS only) |
+   | Client ID | Must equal the Client ID registered in Xentree |
+   | Issuer | Must equal the Issuer registered in Xentree (normally this site's address) |
+   | Audience | Must equal the Audience registered in Xentree (default `xentree-connect`) |
+   | Organization ID | The Xentree organization that owns the integration |
+   | Key ID (kid) | Any identifier; must match the `kid` in the registered JWKS |
+   | Private key (PEM) | Content of `moodle-connect.pem` |
 
-## Demo flow
+4. **Open the status page** (Site administration → Plugins → Local plugins → Xentree Connect status). It lists any
+   missing setting and prints the **public JWKS** derived from your private key.
+5. **Register the site in Xentree** (organization settings → Connect integrations) with the same Client ID, Issuer,
+   Audience and the JWKS from the status page. The organization needs the Connect entitlement.
 
-1. Admin configures the plugin in Moodle.
-2. Plugin generates a JWT using the Moodle-side RSA keypair.
-3. Plugin sends the request to Xentree.
-4. Xentree validates the assertion and returns a redirect with a session ticket.
-5. The browser continues through the consent page and receives Xentree session cookies.
+## Install
 
-## Files
-
-- `version.php` — Moodle plugin metadata
-- `settings.php` — plugin settings page
-- `index.php` — demo launch page and request sender
-- `lang/en/local_xentreeconnect.php` — strings
-
-## Required config for demo
-
-Set these values in Moodle admin:
-
-- Xentree base URL: `https://app.xentree.ai`
-- Client ID: the same value registered in Xentree for this Moodle instance
-- Issuer: `https://moodle.example.com`
-- Audience: `xentree-connect`
-- Organization ID: the org id in Xentree
-- Private key PEM: the matching private key for the Moodle JWKS public key
-- JWKS JSON: public JWKS object with `keys` array
-
-## Example JWT payload
-
-```json
-{
-  "iss": "https://moodle.example.com",
-  "aud": "xentree-connect",
-  "sub": "moodle-user-123",
-  "email": "user@example.com",
-  "organization_id": "org-demo-123",
-  "iat": 1758200000,
-  "exp": 1758203600,
-  "jti": "moodle-demo-9b7d5f3c"
-}
-```
-
-## How to install in Moodle
-
-1. Copy this folder into `moodle/local/xentreeconnect/`.
-2. Run admin upgrade notifications.
-3. Open Site administration → Plugins → Local plugins → Xentree Connect.
-4. Fill in values.
-5. Open the demo page or add a button to the Moodle login or dashboard.
-
-## Production notes
-
-- Never store the private key in git.
-- Use Moodle config.php or a secret manager.
-- Keep `kid` aligned with the JWKS published to Xentree.
-- Use staging values first, then production.
-- For real deployment, add a server-side verification layer and a full consent UX.
-
-## Related Xentree contract
-
-This plugin follows the Xentree Connect contract implemented in:
-
-- `backend/app/routes/connect.py`
-- `backend/app/routes/admin_connect.py`
-- `backend/tests/test_connect_contract.py`
-
-## Demo command sequence
+Copy the `local_xentreeconnect` folder into the Moodle `local/` directory (`public/local/` on Moodle 5.1+), make
+it readable by the web server, then:
 
 ```bash
-# From Moodle app root
-# copy plugin into local/xentreeconnect
 php admin/cli/upgrade.php --non-interactive
 ```
 
-Then open the plugin page from the Moodle admin or custom link.
+## Launch contract
+
+Moodle POSTs `assertion=<JWT>` (form-encoded) to `{baseurl}/connect/v1/launch/{client_id}`. Header: `alg=RS256`,
+`typ=JWT`, `kid`. Claims: `iss`, `aud`, `sub` (`moodle-user-<id>`), `organization_id`, `iat`, `exp` (5 minutes),
+`jti` (single use), and `email` when the user has a valid address. Xentree validates the claims and the signature
+against the registered JWKS, then redirects the browser to its consent screen.
+
+Implemented by `backend/app/routes/connect.py` in the Xentree repository.
+
+## Tests
+
+The launcher logic is plain PHP and is covered in `tests/launcher_test.php`. Inside Moodle use its PHPUnit setup.
+Without a Moodle checkout, with a standalone PHPUnit:
+
+```bash
+phpunit --bootstrap tests/standalone/bootstrap.php --test-suffix _test.php tests
+```
+
+## Notes
+
+- The private key is stored unencrypted in the Moodle database. Fine for a demo; for production use a secret manager.
+- Changing the key requires updating the JWKS in Xentree, otherwise launches fail with HTTP 401.
