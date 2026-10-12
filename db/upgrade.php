@@ -22,5 +22,10 @@ function xmldb_local_xentreeconnect_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026101200, 'local', 'xentreeconnect');
     }
 
+    if ($oldversion < 2026101201) {
+        // 0.1.1 build 2: button placement hooks and launch.php. Nothing to migrate; the bump registers the hooks.
+        upgrade_plugin_savepoint(true, 2026101201, 'local', 'xentreeconnect');
+    }
+
     return true;
 }

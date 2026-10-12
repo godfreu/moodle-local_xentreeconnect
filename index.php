@@ -44,8 +44,13 @@ if ($problems) {
 } else {
     echo $OUTPUT->notification(get_string('statusready', 'local_xentreeconnect'), 'success');
 }
-echo html_writer::div(html_writer::link($settingsurl, get_string('opensettings', 'local_xentreeconnect'),
-    ['class' => 'btn btn-secondary']), 'mb-4');
+$buttons = html_writer::link($settingsurl, get_string('opensettings', 'local_xentreeconnect'),
+    ['class' => 'btn btn-secondary mr-2']);
+if (!$problems) {
+    $buttons .= html_writer::link(new moodle_url('/local/xentreeconnect/launch.php'),
+        get_string('testlaunch', 'local_xentreeconnect'), ['class' => 'btn btn-primary']);
+}
+echo html_writer::div($buttons, 'mb-4');
 
 echo $OUTPUT->heading(get_string('registerheading', 'local_xentreeconnect'), 3);
 echo html_writer::tag('p', get_string('registerintro', 'local_xentreeconnect'));

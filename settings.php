@@ -64,6 +64,32 @@ if ($hassiteconfig) {
         get_string('privatekeypemdesc', 'local_xentreeconnect')
     ));
 
+    $settings->add(new admin_setting_heading(
+        'local_xentreeconnect/buttonheader',
+        get_string('buttonheader', 'local_xentreeconnect'),
+        get_string('buttonheaderdesc', 'local_xentreeconnect', (new moodle_url('/local/xentreeconnect/launch.php'))->out(false))
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/buttontext',
+        get_string('buttontext', 'local_xentreeconnect'),
+        get_string('buttontextdesc', 'local_xentreeconnect'),
+        '',
+        PARAM_TEXT
+    ));
+
+    $settings->add(new admin_setting_configmulticheckbox(
+        'local_xentreeconnect/placements',
+        get_string('placements', 'local_xentreeconnect'),
+        get_string('placementsdesc', 'local_xentreeconnect'),
+        [],
+        [
+            'dashboard' => get_string('placement_dashboard', 'local_xentreeconnect'),
+            'course' => get_string('placement_course', 'local_xentreeconnect'),
+            'login' => get_string('placement_login', 'local_xentreeconnect'),
+        ]
+    ));
+
     $ADMIN->add('localplugins', $settings);
     $ADMIN->add('localplugins', new admin_externalpage(
         'local_xentreeconnect_status',

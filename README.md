@@ -29,6 +29,24 @@ Requires Moodle 4.4 or later (tested on 5.2).
 5. **Register the site in Xentree** (organization settings → Connect integrations) with the same Client ID, Issuer,
    Audience and the JWKS from the status page. The organization needs the Connect entitlement.
 
+## The Connect button
+
+In the plugin settings choose where the button appears automatically: **Dashboard**, **Course pages**, **Login page**
+(nothing is shown until at least one is selected). The button text and language follow the setting and the user's
+language (EN/ID included). The Xentree base URL decides where learners go, so a custom domain just works.
+
+To put the button anywhere else (a menu item, custom HTML, a theme), link to:
+
+```
+https://<your-moodle>/local/xentreeconnect/launch.php
+```
+
+`launch.php` signs the assertion for the logged-in user and sends the browser to Xentree with a form POST.
+Logged-out visitors are asked to log in to Moodle first.
+
+If the plugin is not fully configured, ordinary users never see the button; site admins see a notice that links to
+the status page.
+
 ## Install
 
 Copy the `local_xentreeconnect` folder into the Moodle `local/` directory (`public/local/` on Moodle 5.1+), make

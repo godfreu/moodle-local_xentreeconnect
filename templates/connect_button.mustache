@@ -1,0 +1,49 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_xentreeconnect/connect_button
+
+    "Connect with Xentree" button, or an admin-only notice when the plugin is not configured.
+
+    Context variables required for this template:
+    * showbutton - bool
+    * adminnotice - bool
+    * label - Button text
+    * href - Launch URL
+    * message - Notice text
+    * statusurl - Status page URL
+    * statuslabel - Status page link text
+
+    Example context (json):
+    {
+        "showbutton": true,
+        "adminnotice": false,
+        "label": "Connect with Xentree",
+        "href": "https://moodle.example.com/local/xentreeconnect/launch.php",
+        "message": "Xentree Connect is not configured.",
+        "statusurl": "https://moodle.example.com/local/xentreeconnect/index.php",
+        "statuslabel": "Xentree Connect status"
+    }
+}}
+<div class="local-xentreeconnect my-3" data-region="local-xentreeconnect">
+    {{#showbutton}}
+        <a class="btn btn-primary" href="{{href}}" role="button" data-action="xentreeconnect-launch">{{label}}</a>
+    {{/showbutton}}
+    {{#adminnotice}}
+        <div class="alert alert-warning mb-0" role="alert">{{message}} <a href="{{statusurl}}">{{statuslabel}}</a></div>
+    {{/adminnotice}}
+</div>
