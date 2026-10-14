@@ -64,6 +64,50 @@ if ($hassiteconfig) {
         get_string('privatekeypemdesc', 'local_xentreeconnect')
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/privatekeyfile',
+        get_string('privatekeyfile', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        '',
+        PARAM_RAW_TRIMMED
+    ));
+
+    $settings->add(new admin_setting_heading(
+        'local_xentreeconnect/webhookheader',
+        get_string('webhookheader', 'local_xentreeconnect'),
+        get_string('webhookheaderdesc', 'local_xentreeconnect', (new moodle_url('/local/xentreeconnect/webhook.php'))->out(false))
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_xentreeconnect/webhooksecret',
+        get_string('webhooksecret', 'local_xentreeconnect'),
+        get_string('webhooksecretdesc', 'local_xentreeconnect'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configpasswordunmask(
+        'local_xentreeconnect/webhooksecretprev',
+        get_string('webhooksecretprev', 'local_xentreeconnect'),
+        get_string('webhooksecretprevdesc', 'local_xentreeconnect'),
+        ''
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/webhooksecretfile',
+        get_string('webhooksecretfile', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        '',
+        PARAM_RAW_TRIMMED
+    ));
+
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/webhooksecretprevfile',
+        get_string('webhooksecretprevfile', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        '',
+        PARAM_RAW_TRIMMED
+    ));
+
     $settings->add(new admin_setting_heading(
         'local_xentreeconnect/buttonheader',
         get_string('buttonheader', 'local_xentreeconnect'),

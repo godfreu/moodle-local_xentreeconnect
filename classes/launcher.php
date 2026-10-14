@@ -42,6 +42,8 @@ final class launcher {
         foreach (self::REQUIRED as $key) {
             $config[$key] = get_config('local_xentreeconnect', $key);
         }
+        // The key may come from config.php or a file outside the web root instead of the database.
+        $config['privatekeypem'] = credentials::from_site_config()->value('privatekeypem');
         return new self($config);
     }
 
