@@ -25,3 +25,4 @@ spl_autoload_register(function (string $class): void {
 });
 
 require_once __DIR__ . '/memory_store.php';
+require_once __DIR__ . '/moodle_stubs.php';
