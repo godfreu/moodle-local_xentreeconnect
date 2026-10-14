@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XMLDB PATH="local/xentreeconnect/db" VERSION="20261014" COMMENT="XMLDB file for Moodle local/xentreeconnect"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
+>
+  <TABLES>
+    <TABLE NAME="local_xentreeconnect_event" COMMENT="Learning activity received from Xentree (minimal fields only). Not linked to grades or completion.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="deliveryid" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" COMMENT="X-Xentree-Delivery; makes redelivery idempotent"/>
+        <FIELD NAME="eventid" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false" COMMENT="Xentree event id; also unique so a replayed request with another delivery id is not stored twice"/>
+        <FIELD NAME="eventtype" TYPE="char" LENGTH="64" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="userid" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="occurredat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="receivedat" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="sessionseconds" TYPE="int" LENGTH="10" NOTNULL="false" SEQUENCE="false"/>
+        <FIELD NAME="sessionstatus" TYPE="char" LENGTH="32" NOTNULL="false" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+        <KEY NAME="userid" TYPE="foreign" FIELDS="userid" REFTABLE="user" REFFIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="deliveryid" UNIQUE="true" FIELDS="deliveryid"/>
+        <INDEX NAME="eventid" UNIQUE="true" FIELDS="eventid"/>
+        <INDEX NAME="userid_occurredat" UNIQUE="false" FIELDS="userid, occurredat"/>
+        <INDEX NAME="receivedat" UNIQUE="false" FIELDS="receivedat"/>
+      </INDEXES>
+    </TABLE>
+    <TABLE NAME="local_xentreeconnect_stat" COMMENT="Hourly outcome counters of the webhook receiver. Contains no personal data.">
+      <FIELDS>
+        <FIELD NAME="id" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="true"/>
+        <FIELD NAME="hourstart" TYPE="int" LENGTH="10" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="outcome" TYPE="char" LENGTH="40" NOTNULL="true" SEQUENCE="false"/>
+        <FIELD NAME="cnt" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
+      </FIELDS>
+      <KEYS>
+        <KEY NAME="primary" TYPE="primary" FIELDS="id"/>
+      </KEYS>
+      <INDEXES>
+        <INDEX NAME="hourstart_outcome" UNIQUE="true" FIELDS="hourstart, outcome"/>
+      </INDEXES>
+    </TABLE>
+  </TABLES>
+</XMLDB>

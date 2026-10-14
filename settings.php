@@ -90,6 +90,19 @@ if ($hassiteconfig) {
         ]
     ));
 
+    $settings->add(new admin_setting_heading(
+        'local_xentreeconnect/dataheader',
+        get_string('dataheader', 'local_xentreeconnect'),
+        get_string('dataheaderdesc', 'local_xentreeconnect')
+    ));
+
+    $settings->add(new \local_xentreeconnect\admin_setting_retentiondays(
+        'local_xentreeconnect/retentiondays',
+        get_string('retentiondays', 'local_xentreeconnect'),
+        get_string('retentiondaysdesc', 'local_xentreeconnect'),
+        (string) \local_xentreeconnect\retention::DEFAULT_DAYS
+    ));
+
     $ADMIN->add('localplugins', $settings);
     $ADMIN->add('localplugins', new admin_externalpage(
         'local_xentreeconnect_status',
