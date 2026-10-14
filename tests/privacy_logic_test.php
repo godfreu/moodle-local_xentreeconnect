@@ -2,6 +2,11 @@
 
 namespace local_xentreeconnect;
 
+// Needs the stand-ins from tests/standalone/moodle_stubs.php; inside Moodle the real API is tested by tests/privacy/provider_test.php.
+if (!class_exists('fake_moodle_db')) {
+    return;
+}
+
 use core_privacy\local\metadata\collection;
 use core_privacy\local\request\approved_contextlist;
 use core_privacy\local\request\approved_userlist;

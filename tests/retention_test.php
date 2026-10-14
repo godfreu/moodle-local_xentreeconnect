@@ -2,6 +2,8 @@
 
 namespace local_xentreeconnect;
 
+require_once(__DIR__ . '/standalone/memory_store.php');
+
 use local_xentreeconnect\tests\memory_store;
 
 /**
