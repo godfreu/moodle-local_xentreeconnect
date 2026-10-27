@@ -1,0 +1,86 @@
+{
+  "generated_with": "backend/app/services/webhook_delivery.py",
+  "deliveries": [
+    {
+      "name": "session_completed",
+      "timestamp": 1790000000,
+      "secret_current": "whsec_1111111111111111111111111111111111111111111111111111111111111111",
+      "secret_previous": null,
+      "headers": {
+        "X-Xentree-Event": "erpi.session.completed",
+        "X-Xentree-Delivery": "84c2356e-60be-4735-8403-f7b5a4ffa246",
+        "X-Xentree-Idempotency-Key": "subscription:sub-fixture:session_completed",
+        "X-Xentree-Key-Id": "whk_fixture",
+        "X-Xentree-Timestamp": "1790000000",
+        "X-Xentree-Signature": "v1=4a127b0b1688b870b6d15935a4626c676e76e2c8389a88e121e0a2690ba18894",
+        "X-Xentree-Signature-V2": "t=1790000000,v1=2720ff6fb26eaf1344db3aaeb52a96acebeac61459159ed21502421a7bce146c"
+      },
+      "body": "{\"event_id\":\"3038ef03-ca88-49e2-af28-8b3b1dd791d6\",\"event_type\":\"erpi.session.completed\",\"external_subject\":\"moodle-user-7\",\"occurred_at\":\"2026-10-14T08:30:00Z\",\"schema_version\":1,\"session_duration_seconds\":1260,\"session_status\":\"completed\"}",
+      "expect": {
+        "userid": 7,
+        "seconds": 1260,
+        "status": "completed",
+        "eventid": "3038ef03-ca88-49e2-af28-8b3b1dd791d6"
+      }
+    },
+    {
+      "name": "session_completed_during_rotation",
+      "timestamp": 1790000000,
+      "secret_current": "whsec_1111111111111111111111111111111111111111111111111111111111111111",
+      "secret_previous": "whsec_2222222222222222222222222222222222222222222222222222222222222222",
+      "headers": {
+        "X-Xentree-Event": "erpi.session.completed",
+        "X-Xentree-Delivery": "91ca2093-2d23-4d60-94aa-d4fec13591a5",
+        "X-Xentree-Idempotency-Key": "subscription:sub-fixture:session_completed_during_rotation",
+        "X-Xentree-Key-Id": "whk_fixture",
+        "X-Xentree-Timestamp": "1790000000",
+        "X-Xentree-Signature": "v1=d057b6292b3b53ce43c3af170fbb1b6b75b845545daa4a9f118290bd259df81c",
+        "X-Xentree-Signature-V2": "t=1790000000,v1=c36a15099666f8418a1162a207f451ab1f971af21f8ad7ca37ce5fcbb0fe81f4,v1=9b83d8fbff074f09f1aec6627f75b0d9a344c32cb6c1d233730f84adb29bf5f5"
+      },
+      "body": "{\"event_id\":\"2dcada12-54ad-4ad0-a694-d7f3bd3e781c\",\"event_type\":\"erpi.session.completed\",\"external_subject\":\"moodle-user-8\",\"occurred_at\":\"2026-10-14T09:00:00.123456+07:00\",\"schema_version\":1,\"session_duration_seconds\":30,\"session_status\":\"completed\"}",
+      "expect": {
+        "userid": 8,
+        "seconds": 30,
+        "status": "completed",
+        "eventid": "2dcada12-54ad-4ad0-a694-d7f3bd3e781c"
+      }
+    },
+    {
+      "name": "consent_revoked",
+      "timestamp": 1790000000,
+      "secret_current": "whsec_1111111111111111111111111111111111111111111111111111111111111111",
+      "secret_previous": null,
+      "headers": {
+        "X-Xentree-Event": "connect.consent.revoked",
+        "X-Xentree-Delivery": "4a7744cc-0b28-4cd8-b711-ae4b13f768a9",
+        "X-Xentree-Idempotency-Key": "subscription:sub-fixture:consent_revoked",
+        "X-Xentree-Key-Id": "whk_fixture",
+        "X-Xentree-Timestamp": "1790000000",
+        "X-Xentree-Signature": "v1=22ec65c16cf83555802485e47400c2932ae72080b08f1fcfc4472c4b3670871c",
+        "X-Xentree-Signature-V2": "t=1790000000,v1=808fcfb0a70148b9b0f38b241620a2eb33f3f4dab77ad26bd0595649f3a1791e"
+      },
+      "body": "{\"event_id\":\"evt_8a3971fe036a547980a4fb47ceab44d4\",\"event_type\":\"connect.consent.revoked\",\"external_subject\":\"moodle-user-7\",\"occurred_at\":\"2026-10-14T13:20:33.847413Z\",\"reason\":\"admin\",\"schema_version\":1}",
+      "expect": {
+        "userid": 7,
+        "reason": "admin"
+      }
+    },
+    {
+      "name": "test_ping",
+      "timestamp": 1790000000,
+      "secret_current": "whsec_1111111111111111111111111111111111111111111111111111111111111111",
+      "secret_previous": null,
+      "headers": {
+        "X-Xentree-Event": "webhook.test.ping",
+        "X-Xentree-Delivery": "cfb2437b-56a9-4d74-b1f4-ea41fc27f7d1",
+        "X-Xentree-Idempotency-Key": "subscription:sub-fixture:test_ping",
+        "X-Xentree-Key-Id": "whk_fixture",
+        "X-Xentree-Timestamp": "1790000000",
+        "X-Xentree-Signature": "v1=9a192c5ad7dd073a79bbc9953a5389e69abfa4fd3eff5b3c8c2568d55ddc8ed5",
+        "X-Xentree-Signature-V2": "t=1790000000,v1=ddd5c9e124cb87918e0601c13045683b587e85892802544209d726523fec849c"
+      },
+      "body": "{\"event_id\":\"evt_557285a808554503a2c3544639b44976\",\"event_type\":\"webhook.test.ping\",\"message\":\"Test event from Xentree\",\"occurred_at\":\"2026-10-14T13:20:33.848928Z\",\"schema_version\":1}",
+      "expect": {}
+    }
+  ]
+}
