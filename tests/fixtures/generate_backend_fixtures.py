@@ -4,8 +4,9 @@
 The PHP receiver tests verify these bytes and headers, so a change in how Xentree signs or shapes a delivery shows
 up as a failing plugin test instead of a production surprise. Throwaway secrets only.
 
-    cd backend && PYTHONPATH=./ DATABASE_URL=postgresql://x:x@127.0.0.1:1/x SECRET_KEY=x \
-        python3 ../apps/xentree-moodle-plugin/tests/fixtures/generate_backend_fixtures.py
+    # From the xentree backend directory:
+    PYTHONPATH=./ DATABASE_URL=postgresql://x:x@127.0.0.1:1/x SECRET_KEY=x \
+        python3 /path/to/xentree-connect/tests/fixtures/generate_backend_fixtures.py
 """
 
 import base64

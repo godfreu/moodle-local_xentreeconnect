@@ -50,8 +50,17 @@ the status page.
 
 ## Install
 
-Copy the `local_xentreeconnect` folder into the Moodle `local/` directory (`public/local/` on Moodle 5.1+), make
-it readable by the web server, then:
+### From Git
+Clone this repository into your Moodle installation under `local/xentreeconnect`:
+
+```bash
+git clone https://github.com/godfreu/xentree-connect.git local/xentreeconnect
+```
+
+### From ZIP package
+Extract the release ZIP archive into the Moodle `local/` directory so the plugin folder is `local/xentreeconnect` (or `public/local/xentreeconnect` on Moodle 5.1+).
+
+Ensure permissions allow the web server to read the files, then run the upgrade:
 
 ```bash
 php admin/cli/upgrade.php --non-interactive
@@ -150,3 +159,12 @@ Stored in Moodle (from 0.2.0): the activity rows described above, linked to the 
 through Moodle's Privacy API (`classes/privacy/provider.php`): the site's privacy registry lists them, and data
 export and deletion requests cover the stored activity (it is also removed when Xentree reports that the member
 withdrew consent, and by the retention task).
+
+## Issues & Support
+
+Report bugs, ask questions, or request features on GitHub:
+https://github.com/godfreu/xentree-connect/issues
+
+## License
+
+This plugin is free software: you can redistribute it and/or modify it under the terms of the [GNU General Public License](LICENSE) as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
