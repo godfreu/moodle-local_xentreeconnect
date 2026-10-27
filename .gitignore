@@ -21,3 +21,4 @@ vendor/
 # Temporary / test output
 /tmp/
 .phpunit.result.cache
+

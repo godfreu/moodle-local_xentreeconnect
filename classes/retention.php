@@ -18,7 +18,7 @@
  * Retention logic for the activity received from Xentree.
  *
  * @package    local_xentreeconnect
- * @copyright  2026 G. E. Bayu Alfian <79591609+godfreu@users.noreply.github.com>
+ * @copyright  2026 PT Global Otomat Digital
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
