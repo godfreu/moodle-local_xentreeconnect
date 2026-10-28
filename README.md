@@ -54,7 +54,7 @@ the status page.
 Clone this repository into your Moodle installation under `local/xentreeconnect`:
 
 ```bash
-git clone https://github.com/godfreu/xentree-connect.git local/xentreeconnect
+git clone https://github.com/godfreu/moodle-local_xentreeconnect.git local/xentreeconnect
 ```
 
 ### From ZIP package
@@ -163,7 +163,7 @@ withdrew consent, and by the retention task).
 ## Issues & Support
 
 Report bugs, ask questions, or request features on GitHub:
-https://github.com/godfreu/xentree-connect/issues
+https://github.com/godfreu/moodle-local_xentreeconnect/issues
 
 ## License
 
