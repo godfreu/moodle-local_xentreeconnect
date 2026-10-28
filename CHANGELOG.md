@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1 — repository rename
+
+- Documentation only: the repository is now `godfreu/moodle-local_xentreeconnect`; README links updated.
+- Test fixtures use example domains only. No code changes.
+
 ## 0.2.0 — receives learning activity from Xentree
 
 - **Webhook receiver** (`webhook.php`): verifies Xentree's HMAC signature (`X-Xentree-Signature-V2`, 5-minute

@@ -1,6 +1,6 @@
 # Xentree Connect for Moodle (local_xentreeconnect)
 
-Beta plugin (0.2.0) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
+Beta plugin (0.2.1) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
 JWT launch assertion for the logged-in Moodle user and sends the learner to Xentree, and it can receive learning
 activity back from Xentree for members who agreed to share it (see "Receiving activity from Xentree").
 
