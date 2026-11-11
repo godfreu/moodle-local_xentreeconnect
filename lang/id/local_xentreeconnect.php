@@ -52,6 +52,8 @@ $string['deletealldata'] = 'Hapus semua data Xentree';
 $string['deletealldatadesc'] = 'Menghapus semua catatan aktivitas yang diterima dari Xentree. Gunakan saat integrasi dimatikan dan pemberitahuan pencabutan tidak lagi dikirim.';
 $string['deletealldone'] = '{$a} catatan aktivitas dihapus.';
 $string['events24h'] = 'Catatan aktivitas diterima';
+$string['externalserviceheader'] = 'Layanan eksternal: Xentree';
+$string['externalservicenotice'] = 'Plugin ini menghubungkan situs Moodle Anda ke Xentree, layanan pihak ketiga eksternal, dan tidak berfungsi tanpanya. Diperlukan organisasi Xentree dengan hak Connect dan integrasi yang didaftarkan di sana untuk situs ini (Client ID, Issuer, Audience, Organization ID, key ID, dan JWKS publik dari kunci Anda). Saat pengguna memulai alur Connect, plugin mengirim ID pengguna Moodle dan, jika valid, alamat email mereka ke Xentree. Jika Anda mendaftarkan webhook, Xentree mengirim peristiwa aktivitas belajar dan penarikan persetujuan untuk anggota yang setuju membagikannya, dan situs ini menyimpannya seperti dijelaskan pada bagian Privasi. Cara mendapat akses, biaya, dan kebutuhan akun: <a href="{$a}" target="_blank" rel="noopener">Persyaratan layanan eksternal</a> di README plugin.';
 $string['filereason_empty'] = 'kosong';
 $string['filereason_insidewebroot'] = 'berada di dalam web root';
 $string['filereason_unreadable'] = 'tidak dapat dibaca';

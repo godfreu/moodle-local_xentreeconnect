@@ -52,6 +52,8 @@ $string['deletealldata'] = 'Delete all Xentree data';
 $string['deletealldatadesc'] = 'Removes every activity record received from Xentree. Use it when the integration is switched off and withdrawal notices will no longer arrive.';
 $string['deletealldone'] = 'Deleted {$a} activity record(s).';
 $string['events24h'] = 'Activity records received';
+$string['externalserviceheader'] = 'External service: Xentree';
+$string['externalservicenotice'] = 'This plugin connects your Moodle site to Xentree, an external third-party service, and does nothing without it. It needs a Xentree organisation with the Connect entitlement and an integration registered there for this site (Client ID, Issuer, Audience, Organization ID, key ID and the public JWKS of your key). When a user starts the Connect flow, the plugin sends their Moodle user ID and, if valid, their e-mail address to Xentree. If you register a webhook, Xentree sends learning-activity events and consent withdrawals for members who agreed to share them, and this site stores them as described under Privacy. How to get access, cost and account requirements: <a href="{$a}" target="_blank" rel="noopener">External service requirements</a> in the plugin README.';
 $string['filereason_empty'] = 'it is empty';
 $string['filereason_insidewebroot'] = 'it is inside the web root';
 $string['filereason_unreadable'] = 'it cannot be read';

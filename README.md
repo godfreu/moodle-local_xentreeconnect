@@ -73,13 +73,11 @@ Moodle POSTs `assertion=<JWT>` (form-encoded) to `{baseurl}/connect/v1/launch/{c
 `jti` (single use), and `email` when the user has a valid address. Xentree validates the claims and the signature
 against the registered JWKS, then redirects the browser to its consent screen.
 
-Implemented by `backend/app/routes/connect.py` in the Xentree repository.
-
 ## Receiving activity from Xentree
 
 Xentree sends two kinds of events to a webhook URL you register: `erpi.session.completed` (a member finished a
 learning session) and `connect.consent.revoked` (a member withdrew consent, so their stored activity must go).
-Payload and headers are specified in `docs/connect_partner_webhook_payload.md` of the Xentree repository.
+The headers and fields are listed under [Data exchanged with Xentree](#data-exchanged-with-xentree).
 
 1. In the plugin settings, find **Receiving activity from Xentree**: it shows the URL
    (`https://<your-moodle>/local/xentreeconnect/webhook.php`). Register it as the webhook URL of your Connect client
@@ -149,6 +147,36 @@ This plugin is a beta. Before using it with real learners:
 - **Review the consent wording** shown by Xentree with your data-protection adviser. Activity data flows to Moodle only
   after members agree to the newer consent text.
 - Set a real policy link (`policy_url`) on the integration in Xentree; the consent screen otherwise says none was given.
+
+## Data exchanged with Xentree
+
+**Sent to Xentree** when a user starts the Connect flow (button or `launch.php`): a form POST of one field, `assertion`,
+to `{base URL}/connect/v1/launch/{client ID}`. It is a JWT signed with your private key (RS256, header `kid`), valid for
+5 minutes, and used once:
+
+| Claim | Content |
+|---|---|
+| `iss`, `aud` | Issuer and Audience from the plugin settings |
+| `sub` | `moodle-user-<Moodle user ID>` |
+| `organization_id` | Xentree organization ID from the plugin settings |
+| `iat`, `exp`, `jti` | Issue time, expiry (5 minutes later), unique id |
+| `email` | The user's e-mail address, only when it is valid |
+
+Nothing else is sent by the plugin. (The user's browser then talks to Xentree directly, under Xentree's own terms.)
+
+**Received from Xentree** at `webhook.php`: `POST` with JSON, signed by Xentree with the webhook secret. Headers:
+`X-Xentree-Signature-V2` (`t=<unix time>,v1=<HMAC-SHA256 hex of "<t>.<raw body>">`, one `v1` per valid secret),
+`X-Xentree-Delivery` (delivery id) and `X-Xentree-Event` (event type). The body is at most 256 KiB and its fields are:
+
+| Event | Fields |
+|---|---|
+| `erpi.session.completed` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject` (`moodle-user-<ID>`), `session_duration_seconds`, `session_status` |
+| `connect.consent.revoked` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject`, `reason` (`user`, `admin` or `deprovision`) |
+| `webhook.test.ping` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `message`; counted, not stored |
+
+Stored from `erpi.session.completed` only: delivery id, event id, event type, Moodle user, when it happened, when it was
+received, duration and status. Unknown events, unknown users and newer schema versions are acknowledged, counted and
+not stored.
 
 ## Privacy
 

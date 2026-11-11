@@ -28,6 +28,16 @@ if ($hassiteconfig) {
     $settings = new admin_settingpage('local_xentreeconnect', get_string('pluginname', 'local_xentreeconnect'));
 
     $settings->add(new admin_setting_heading(
+        'local_xentreeconnect/externalservice',
+        get_string('externalserviceheader', 'local_xentreeconnect'),
+        get_string(
+            'externalservicenotice',
+            'local_xentreeconnect',
+            'https://github.com/godfreu/moodle-local_xentreeconnect#external-service-requirements'
+        )
+    ));
+
+    $settings->add(new admin_setting_heading(
         'local_xentreeconnect/header',
         get_string('settingsheader', 'local_xentreeconnect'),
         get_string('settingsheaderdesc', 'local_xentreeconnect', (new moodle_url('/local/xentreeconnect/index.php'))->out(false))
