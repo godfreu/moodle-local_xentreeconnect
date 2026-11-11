@@ -75,10 +75,10 @@ final class privacy_logic_test extends \basic_testcase {
         $this->assertSame(['local_xentreeconnect_event'], array_keys($collection->tables));
         $this->assertSame(['xentree'], array_keys($collection->links));
         $this->assertSame(
-            ['userid', 'eventtype', 'occurredat', 'receivedat', 'sessionseconds', 'sessionstatus'],
+            ['deliveryid', 'eventid', 'userid', 'eventtype', 'occurredat', 'receivedat', 'sessionseconds', 'sessionstatus'],
             array_keys($collection->tables['local_xentreeconnect_event']['fields'])
         );
-        // The table's columns that identify a delivery are deliberately not part of what is declared/exported.
+        // Every stored column is declared (the delivery and event ids included); the export lists the activity only.
         $keys = [$collection->tables['local_xentreeconnect_event']['summary'], $collection->links['xentree']['summary']];
         foreach ([$collection->tables['local_xentreeconnect_event']['fields'], $collection->links['xentree']['fields']] as $fields) {
             $keys = array_merge($keys, array_values($fields));

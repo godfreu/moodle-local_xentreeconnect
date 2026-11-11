@@ -36,7 +36,7 @@ $receiver = new \local_xentreeconnect\webhook\receiver(
     [$credentials->value('webhooksecret'), $credentials->value('webhooksecretprev')],
     null,
     static function (string $outcome, string $eventtype, string $deliveryid): void {
-        error_log("local_xentreeconnect webhook {$outcome} type={$eventtype} delivery={$deliveryid}");
+        debugging("local_xentreeconnect webhook {$outcome} type={$eventtype} delivery={$deliveryid}", DEBUG_NORMAL);
     }
 );
 
@@ -53,7 +53,7 @@ try {
     );
 } catch (\Throwable $e) {
     // A database problem is worth a retry; say nothing about it.
-    error_log('local_xentreeconnect webhook failure: ' . get_class($e));
+    debugging('local_xentreeconnect webhook failure: ' . get_class($e), DEBUG_NORMAL);
     $response = ['status' => 503, 'body' => ['error' => 'unavailable'], 'headers' => []];
 }
 

@@ -57,6 +57,8 @@ class provider implements
      */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(self::TABLE, [
+            'deliveryid' => 'privacy:metadata:event:deliveryid',
+            'eventid' => 'privacy:metadata:event:eventid',
             'userid' => 'privacy:metadata:event:userid',
             'eventtype' => 'privacy:metadata:event:eventtype',
             'occurredat' => 'privacy:metadata:event:occurredat',
