@@ -209,3 +209,34 @@ namespace {
         }
     }
 }
+
+namespace {
+    // Output API stand-ins for the renderable classes (inside Moodle the real ones exist and these are skipped).
+    if (!interface_exists('renderable')) {
+        interface renderable {
+        }
+    }
+    if (!interface_exists('templatable')) {
+        interface templatable {
+        }
+    }
+    if (!class_exists('renderer_base')) {
+        class renderer_base {
+        }
+    }
+    if (!function_exists('s')) {
+        function s($text) {
+            return htmlspecialchars((string) $text, ENT_QUOTES | ENT_HTML5);
+        }
+    }
+    if (!class_exists('moodle_url')) {
+        class moodle_url {
+            public function __construct(private string $path, private array $params = []) {
+            }
+
+            public function out($escaped = true): string {
+                return 'https://moodle.example.org' . $this->path . ($this->params ? '?' . http_build_query($this->params) : '');
+            }
+        }
+    }
+}
