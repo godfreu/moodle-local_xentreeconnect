@@ -33,6 +33,8 @@ namespace local_xentreeconnect;
 final class lang_test extends \basic_testcase {
     /**
      * Loads the strings of one language.
+     *
+     * @param string $lang Language code.
      */
     private function strings(string $lang): array {
         $string = [];

@@ -48,6 +48,10 @@ final class status_report_test extends \basic_testcase {
 
     /**
      * Builds a report from a credentials resolver and a store.
+     *
+     * @param credentials $credentials Credentials resolver.
+     * @param memory_store|null $store The store.
+     * @param int $days Retention in days.
      */
     private function build(credentials $credentials, ?memory_store $store = null, int $days = 365): array {
         return status_report::build($credentials, $store ?? new memory_store(), self::URL, $days, self::NOW);

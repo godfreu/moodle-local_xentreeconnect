@@ -44,6 +44,10 @@ final class retention_test extends \basic_testcase {
 
     /**
      * An activity row received the given number of days ago.
+     *
+     * @param string $id The id.
+     * @param int $receivedat The receivedat.
+     * @param int $userid Moodle user id.
      */
     private function row(string $id, int $receivedat, int $userid = 7): array {
         return [

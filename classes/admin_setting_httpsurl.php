@@ -36,6 +36,11 @@ require_once($CFG->libdir . '/adminlib.php');
 class admin_setting_httpsurl extends \admin_setting_configtext {
     /**
      * Creates the URL setting.
+     *
+     * @param string $name Setting name.
+     * @param string $visiblename Visible name.
+     * @param string $description Description.
+     * @param string $defaultsetting Default value.
      */
     public function __construct(string $name, string $visiblename, string $description, string $defaultsetting) {
         parent::__construct($name, $visiblename, $description, $defaultsetting, PARAM_URL);
@@ -43,6 +48,8 @@ class admin_setting_httpsurl extends \admin_setting_configtext {
 
     /**
      * Validates the submitted URL.
+     *
+     * @param mixed $data Submitted value.
      */
     public function validate($data) {
         $result = parent::validate($data);

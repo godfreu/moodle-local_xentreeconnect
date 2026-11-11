@@ -41,6 +41,9 @@ class connect_button implements \renderable, \templatable {
 
     /**
      * Creates the button for a state and label.
+     *
+     * @param string $state Button state.
+     * @param string $label Button text.
      */
     private function __construct(string $state, string $label) {
         $this->state = $state;
@@ -64,6 +67,8 @@ class connect_button implements \renderable, \templatable {
 
     /**
      * Data for the templates/connect_button mustache template.
+     *
+     * @param \renderer_base $output The renderer.
      */
     public function export_for_template(\renderer_base $output): \stdClass {
         $data = new \stdClass();

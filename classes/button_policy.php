@@ -55,6 +55,9 @@ final class button_policy {
 
     /**
      * Regular users only ever see a working button; an incomplete configuration is reported to site admins only.
+     *
+     * @param bool $configured Whether the plugin is configured.
+     * @param bool $isadmin Whether the user is a site admin.
      */
     public static function decide(bool $configured, bool $isadmin): string {
         if ($configured) {
@@ -65,6 +68,8 @@ final class button_policy {
 
     /**
      * Maps a Moodle page type to one of {@see self::PLACEMENTS}, or null for pages that never show the button.
+     *
+     * @param string $pagetype Moodle page type.
      */
     public static function placement_for_pagetype(string $pagetype): ?string {
         if ($pagetype === 'my-index') {
@@ -95,6 +100,9 @@ final class button_policy {
 
     /**
      * Whether the button is enabled on the page type.
+     *
+     * @param string $pagetype Moodle page type.
+     * @param array $enabled Enabled placements.
      */
     public static function should_render(string $pagetype, array $enabled): bool {
         $placement = self::placement_for_pagetype($pagetype);
@@ -103,6 +111,9 @@ final class button_policy {
 
     /**
      * Admin-defined button text, falling back to the language string default when empty.
+     *
+     * @param mixed $custom Admin-defined text.
+     * @param string $default Default text.
      */
     public static function label($custom, string $default): string {
         $custom = is_string($custom) ? trim($custom) : '';

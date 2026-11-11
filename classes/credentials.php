@@ -148,6 +148,8 @@ final class credentials {
 
     /**
      * Convenience: only the value of one credential.
+     *
+     * @param string $item Credential name.
      */
     public function value(string $item): string {
         return $this->resolve($item)['value'];
@@ -155,6 +157,8 @@ final class credentials {
 
     /**
      * Trimmed string value, or an empty string for anything else.
+     *
+     * @param mixed $value The value.
      */
     private function text($value): string {
         return is_string($value) ? trim($value) : '';
@@ -162,6 +166,8 @@ final class credentials {
 
     /**
      * Whether a path is inside the directory the web server serves.
+     *
+     * @param string $path File path.
      */
     private function is_inside_webroot(string $path): bool {
         if ($this->webroot === null || $this->webroot === '') {
@@ -174,6 +180,8 @@ final class credentials {
 
     /**
      * Resolves a path for comparison, using forward slashes.
+     *
+     * @param string $path File path.
      */
     private function normalise(string $path): string {
         $real = @realpath($path);

@@ -42,16 +42,22 @@ interface store {
 
     /**
      * Whether a Moodle user exists and is not deleted.
+     *
+     * @param int $userid Moodle user id.
      */
     public function user_exists(int $userid): bool;
 
     /**
      * Deletes every stored row of one user.
+     *
+     * @param int $userid Moodle user id.
      */
     public function delete_user_events(int $userid): int;
 
     /**
      * Deletes the rows received before the timestamp.
+     *
+     * @param int $timestamp Unix timestamp.
      */
     public function delete_received_before(int $timestamp): int;
 
@@ -62,23 +68,31 @@ interface store {
 
     /**
      * Counts one outcome of the receiver in the hour containing the given time.
+     *
+     * @param string $outcome Outcome code.
+     * @param int $now Current unix time.
      */
     public function count_outcome(string $outcome, int $now): void;
 
     /**
      * Totals of each receiver outcome since the timestamp.
      *
+     * @param int $since Unix timestamp.
      * @return array<string,int> Outcome => total since the timestamp.
      */
     public function outcome_counts_since(int $since): array;
 
     /**
      * Counts the activity rows received since the timestamp.
+     *
+     * @param int $since Unix timestamp.
      */
     public function count_events_since(int $since): int;
 
     /**
      * Removes the counter rows older than the timestamp.
+     *
+     * @param int $timestamp Unix timestamp.
      */
     public function delete_stats_before(int $timestamp): void;
 }

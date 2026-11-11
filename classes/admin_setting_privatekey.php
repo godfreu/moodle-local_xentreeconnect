@@ -36,6 +36,10 @@ require_once($CFG->libdir . '/adminlib.php');
 class admin_setting_privatekey extends \admin_setting_configtextarea {
     /**
      * Creates the private key setting.
+     *
+     * @param string $name Setting name.
+     * @param string $visiblename Visible name.
+     * @param string $description Description.
      */
     public function __construct(string $name, string $visiblename, string $description) {
         parent::__construct($name, $visiblename, $description, '', PARAM_RAW, '60', '12');
@@ -43,6 +47,8 @@ class admin_setting_privatekey extends \admin_setting_configtextarea {
 
     /**
      * Validates the submitted private key.
+     *
+     * @param mixed $data Submitted value.
      */
     public function validate($data) {
         $result = parent::validate($data);

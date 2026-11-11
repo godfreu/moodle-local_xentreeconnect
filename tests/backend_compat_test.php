@@ -43,6 +43,7 @@ final class backend_compat_test extends \basic_testcase {
     private static array $fixtures;
 
     public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
         $data = json_decode(file_get_contents(__DIR__ . '/fixtures/backend_deliveries.json'), true, 512, JSON_THROW_ON_ERROR);
         self::$fixtures = [];
         foreach ($data['deliveries'] as $delivery) {
@@ -52,6 +53,11 @@ final class backend_compat_test extends \basic_testcase {
 
     /**
      * Sends one recorded delivery to the receiver.
+     *
+     * @param string $name Setting name.
+     * @param array $secrets Webhook secrets.
+     * @param int|null $now Current unix time.
+     * @param memory_store|null $store The store.
      */
     private function deliver(string $name, array $secrets, ?int $now = null, ?memory_store $store = null): array {
         $fixture = self::$fixtures[$name];

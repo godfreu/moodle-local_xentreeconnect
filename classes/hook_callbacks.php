@@ -35,6 +35,8 @@ use local_xentreeconnect\output\connect_button;
 class hook_callbacks {
     /**
      * Adds the button at the top of the body on enabled pages (dashboard, course, login).
+     *
+     * @param before_standard_top_of_body_html_generation $hook The hook.
      */
     public static function before_standard_top_of_body_html_generation(before_standard_top_of_body_html_generation $hook): void {
         global $PAGE, $OUTPUT;

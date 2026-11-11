@@ -76,6 +76,8 @@ final class launcher {
      * Whether a URL is an absolute https URL without credentials, query or fragment.
      *
      * Strict: surrounding whitespace makes it invalid, so callers trim user input first.
+     *
+     * @param string $url The URL.
      */
     public static function is_valid_https_url(string $url): bool {
         if ($url === '' || preg_match('/[\s\x00-\x1f]/', $url)) {
@@ -93,6 +95,8 @@ final class launcher {
 
     /**
      * Stable external subject for a Moodle user.
+     *
+     * @param int $userid Moodle user id.
      */
     public static function subject_for_user(int $userid): string {
         return 'moodle-user-' . $userid;
@@ -218,6 +222,8 @@ final class launcher {
 
     /**
      * Encodes data as base64url without padding, as JWT requires.
+     *
+     * @param string $data Submitted value.
      */
     private static function base64url(string $data): string {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');

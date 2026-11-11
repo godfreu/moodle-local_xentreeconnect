@@ -40,6 +40,7 @@ final class launcher_test extends \basic_testcase {
     private static string $pem;
 
     public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
         $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
         openssl_pkey_export($key, $pem);
         self::$pem = $pem;
@@ -47,6 +48,8 @@ final class launcher_test extends \basic_testcase {
 
     /**
      * A complete configuration with optional overrides.
+     *
+     * @param array $overrides Values that override the defaults.
      */
     private function config(array $overrides = []): array {
         return $overrides + [
@@ -62,6 +65,8 @@ final class launcher_test extends \basic_testcase {
 
     /**
      * Builds a launcher with a fixed clock.
+     *
+     * @param array $overrides Values that override the defaults.
      */
     private function launcher(array $overrides = []): launcher {
         return new launcher($this->config($overrides), fn() => self::NOW);
@@ -69,6 +74,8 @@ final class launcher_test extends \basic_testcase {
 
     /**
      * Decodes one base64url part of a JWT.
+     *
+     * @param string $segment The segment.
      */
     private function decode(string $segment): array {
         $json = base64_decode(strtr($segment, '-_', '+/'));

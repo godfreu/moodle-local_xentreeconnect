@@ -96,6 +96,7 @@ final class receiver {
     /**
      * Lower-cased HTTP headers from a PHP $_SERVER array.
      *
+     * @param array $server The $_SERVER array.
      * @return array<string,string>
      */
     public static function headers_from_server(array $server): array {
@@ -205,6 +206,11 @@ final class receiver {
 
     /**
      * Stores a completed learning session of a known member.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
      */
     private function session_completed(array $payload, string $eventtype, string $deliveryid, int $now): array {
         $eventid = $payload['event_id'] ?? null;
@@ -234,6 +240,11 @@ final class receiver {
 
     /**
      * Deletes a member's stored activity after they withdrew consent.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
      */
     private function consent_revoked(array $payload, string $eventtype, string $deliveryid, int $now): array {
         $subject = $payload['external_subject'] ?? null;
@@ -258,6 +269,7 @@ final class receiver {
     /**
      * Maps an external subject to a Moodle user id.
      *
+     * @param string $subject External subject.
      * @return int|null The Moodle user id of "moodle-user-<id>", or null for any other shape.
      */
     public static function user_from_subject(string $subject): ?int {
@@ -269,6 +281,8 @@ final class receiver {
 
     /**
      * Parses an ISO 8601 timestamp.
+     *
+     * @param mixed $value The value.
      */
     private function timestamp($value): ?int {
         if (!is_string($value) || preg_match(self::TIME_PATTERN, $value) !== 1) {
@@ -284,6 +298,7 @@ final class receiver {
     /**
      * Splits the signature header into its timestamp and candidate signatures.
      *
+     * @param string $header Signature header value.
      * @return array{t:int,v1:string[]}|null
      */
     private function parse_signature(string $header): ?array {
@@ -308,6 +323,9 @@ final class receiver {
 
     /**
      * Whether any configured secret produces one of the candidate signatures.
+     *
+     * @param array $signature Parsed signature header.
+     * @param string $body Raw request body.
      */
     private function signature_matches(array $signature, string $body): bool {
         $matched = false;
@@ -323,6 +341,11 @@ final class receiver {
 
     /**
      * Counts the outcome and answers 2xx, so Xentree does not retry.
+     *
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
      */
     private function accept(string $outcome, string $eventtype, string $deliveryid, int $now): array {
         $this->store->count_outcome($outcome, $now);
@@ -334,6 +357,11 @@ final class receiver {
 
     /**
      * Counts the outcome and answers with an error status.
+     *
+     * @param int $status HTTP status.
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
      */
     private function reject(int $status, string $outcome, string $eventtype, string $deliveryid): array {
         $this->store->count_outcome($outcome, (int) ($this->clock)());
@@ -343,6 +371,10 @@ final class receiver {
 
     /**
      * Builds the response: a status and a short machine code.
+     *
+     * @param int $status HTTP status.
+     * @param string $code Machine code.
+     * @param array $headers Lower-cased HTTP headers.
      */
     private function reply(int $status, string $code, array $headers = []): array {
         // Short machine codes only: nothing about the secret, the payload or the site.
@@ -351,6 +383,10 @@ final class receiver {
 
     /**
      * Passes an outcome to the logger, if there is one.
+     *
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
      */
     private function log(string $outcome, string $eventtype, string $deliveryid): void {
         if ($this->logger !== null) {
@@ -360,6 +396,8 @@ final class receiver {
 
     /**
      * Reduces a value to characters that are safe to log.
+     *
+     * @param string $value The value.
      */
     private function clean(string $value): string {
         return substr(preg_replace('/[^A-Za-z0-9._-]/', '', $value), 0, 64);

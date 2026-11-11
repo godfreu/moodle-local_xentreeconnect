@@ -48,6 +48,9 @@ use core_privacy\tests\provider_testcase;
 final class provider_test extends provider_testcase {
     /**
      * Stores one activity row for a user.
+     *
+     * @param int $userid Moodle user id.
+     * @param string $id The id.
      */
     private function add_event(int $userid, string $id): void {
         global $DB;

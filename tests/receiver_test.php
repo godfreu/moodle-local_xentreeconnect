@@ -57,12 +57,15 @@ final class receiver_test extends \basic_testcase {
     private array $logged = [];
 
     protected function setUp(): void {
+        parent::setUp();
         $this->store = new memory_store([7, 8, 9]);
         $this->logged = [];
     }
 
     /**
      * Builds a receiver with a fixed clock.
+     *
+     * @param array $secrets Webhook secrets.
      */
     private function receiver(array $secrets = [self::SECRET]): receiver {
         return new receiver($this->store, $secrets, fn() => self::NOW, function (string $o, string $t, string $d): void {
@@ -72,6 +75,8 @@ final class receiver_test extends \basic_testcase {
 
     /**
      * A valid session-completed payload with overrides.
+     *
+     * @param array $over Values that override the defaults.
      */
     private function session(array $over = []): array {
         return $over + [
@@ -83,6 +88,8 @@ final class receiver_test extends \basic_testcase {
 
     /**
      * A valid consent-revoked payload with overrides.
+     *
+     * @param array $over Values that override the defaults.
      */
     private function revoked(array $over = []): array {
         return $over + [
@@ -93,6 +100,10 @@ final class receiver_test extends \basic_testcase {
 
     /**
      * Builds a signed request.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param array $over Values that override the defaults.
+     * @param string|null $raw Raw value.
      */
     private function request(array $payload, array $over = [], ?string $raw = null): array {
         $body = $raw ?? json_encode($payload, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
@@ -116,6 +127,12 @@ final class receiver_test extends \basic_testcase {
 
     /**
      * Sends a request to the receiver.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param array $over Values that override the defaults.
+     * @param string|null $raw Raw value.
+     * @param receiver|null $receiver The receiver.
+     * @param string $method HTTP method.
      */
     private function send(
         array $payload,
@@ -130,6 +147,10 @@ final class receiver_test extends \basic_testcase {
 
     /**
      * Asserts the status and code of a reply.
+     *
+     * @param int $status HTTP status.
+     * @param array $response Receiver response.
+     * @param string|null $code Machine code.
      */
     private function assert_reply(int $status, array $response, ?string $code = null): void {
         $this->assertSame($status, $response['status'], json_encode($response));
@@ -319,6 +340,7 @@ final class receiver_test extends \basic_testcase {
     /**
      * Subjects of any other shape never map to a user.
      *
+     * @param string $subject External subject.
      * @dataProvider bad_subjects
      */
     public function test_malformed_subjects_never_map_to_a_user(string $subject): void {

@@ -33,6 +33,8 @@ namespace local_xentreeconnect;
 final class credentials_test extends \basic_testcase {
     /**
      * A file reader backed by an array of path => content.
+     *
+     * @param array $files File contents by path.
      */
     private function reader(array $files): callable {
         return static fn(string $path): ?string => $files[$path] ?? null;

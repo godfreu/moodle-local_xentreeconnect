@@ -41,7 +41,7 @@ use core_privacy\local\request\writer;
 use local_xentreeconnect\privacy\provider;
 
 /**
- * Logic of the privacy provider against stand-ins for Moodle's Privacy API ({@see tests/standalone/moodle_stubs.php}).
+ * Logic of the privacy provider against stand-ins for Moodle's Privacy API (tests/standalone/moodle_stubs.php).
  * Not a validation of the real API: that is tests/privacy/provider_test.php, which only runs inside Moodle.
  *
  * @package    local_xentreeconnect
@@ -50,6 +50,10 @@ use local_xentreeconnect\privacy\provider;
 final class privacy_logic_test extends \basic_testcase {
     protected function setUp(): void {
         global $DB;
+        parent::setUp();
+        if (!class_exists('fake_moodle_db')) {
+            $this->markTestSkipped('Needs the standalone stand-ins; tests/privacy/provider_test.php covers the real API.');
+        }
         $DB = new \fake_moodle_db();
         $DB->rows = [
             1 => (object) ['id' => 1, 'userid' => 7, 'eventtype' => 'erpi.session.completed', 'occurredat' => 1790000300,
@@ -66,6 +70,8 @@ final class privacy_logic_test extends \basic_testcase {
 
     /**
      * Reads a language string of the plugin.
+     *
+     * @param string $lang Language code.
      */
     private function lang(string $lang): array {
         $string = [];

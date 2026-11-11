@@ -55,6 +55,10 @@ final class status_page_test extends \basic_testcase {
 
     /**
      * Exports a status page for the given state.
+     *
+     * @param array $problems Problems by setting.
+     * @param array|null $jwks Public JWKS.
+     * @param string $jwkserror Why there is no JWKS.
      */
     private function export(array $problems = [], ?array $jwks = ['keys' => []], string $jwkserror = ''): \stdClass {
         $registration = ['clientid' => 'example-client', 'issuer' => '', 'audience' => 'xentree-connect',
