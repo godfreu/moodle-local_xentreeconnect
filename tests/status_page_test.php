@@ -60,7 +60,7 @@ final class status_page_test extends \basic_testcase {
         $registration = ['clientid' => 'example-client', 'issuer' => '', 'audience' => 'xentree-connect',
             'organizationid' => 'org-1'];
         $page = new status_page($problems, $registration, $jwks, $jwkserror, $this->report());
-        return $page->export_for_template(new \renderer_base());
+        return $page->export_for_template($this->createStub(\renderer_base::class));
     }
 
     public function test_ready_page_offers_the_test_launch(): void {
@@ -78,8 +78,8 @@ final class status_page_test extends \basic_testcase {
         $this->assertFalse($data->ready);
         $this->assertTrue($data->hasproblems);
         $this->assertCount(2, $data->problems);
-        $this->assertSame('[local_xentreeconnect:clientid]', $data->problems[0]['label']);
-        $this->assertSame('[local_xentreeconnect:problem_missing]', $data->problems[0]['reason']);
+        $this->assertSame(get_string('clientid', 'local_xentreeconnect'), $data->problems[0]['label']);
+        $this->assertSame(get_string('problem_missing', 'local_xentreeconnect'), $data->problems[0]['reason']);
     }
 
     public function test_receiver_report_and_delete_button_are_part_of_the_page(): void {
@@ -88,7 +88,7 @@ final class status_page_test extends \basic_testcase {
         $this->assertSame('https://moodle.example.org/local/xentreeconnect/webhook.php', $data->receiverurl);
         $this->assertCount(3, $data->warnings);
         $this->assertCount(3, $data->credentials);
-        $this->assertSame('[local_xentreeconnect:events24h]', $data->counters[0]['label']);
+        $this->assertSame(get_string('events24h', 'local_xentreeconnect'), $data->counters[0]['label']);
         $this->assertSame('4', $data->counters[0]['value']);
         $this->assertSame('2', $data->counters[1]['value']);
         // Two further rows: one per outcome, sorted by the report.
@@ -119,7 +119,7 @@ final class status_page_test extends \basic_testcase {
         $report = $this->report();
         $report['key']['value'] = 'SECRET-PEM';
         $page = new status_page([], [], null, '', $report);
-        $json = json_encode($page->export_for_template(new \renderer_base()));
+        $json = json_encode($page->export_for_template($this->createStub(\renderer_base::class)));
 
         $this->assertStringNotContainsString('SECRET-PEM', $json);
     }

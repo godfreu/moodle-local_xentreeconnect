@@ -44,7 +44,7 @@ final class launch_form_test extends \basic_testcase {
 
     public function test_export_passes_the_action_and_assertion_unchanged(): void {
         $form = new launch_form(self::ACTION, self::ASSERTION, 'Redirecting', 'Continue');
-        $data = $form->export_for_template(new \renderer_base());
+        $data = $form->export_for_template($this->createStub(\renderer_base::class));
 
         $this->assertSame(self::ACTION, $data->action);
         $this->assertSame(self::ASSERTION, $data->assertion);
@@ -54,10 +54,11 @@ final class launch_form_test extends \basic_testcase {
     }
 
     public function test_create_takes_the_texts_from_the_language_pack(): void {
-        $data = launch_form::create(self::ACTION, self::ASSERTION)->export_for_template(new \renderer_base());
+        $form = launch_form::create(self::ACTION, self::ASSERTION);
+        $data = $form->export_for_template($this->createStub(\renderer_base::class));
 
-        $this->assertSame('[local_xentreeconnect:redirecting]', $data->redirecting);
-        $this->assertSame('[local_xentreeconnect:continuetoxentree]', $data->continuelabel);
+        $this->assertSame(get_string('redirecting', 'local_xentreeconnect'), $data->redirecting);
+        $this->assertSame(get_string('continuetoxentree', 'local_xentreeconnect'), $data->continuelabel);
     }
 
     public function test_template_posts_the_assertion_and_keeps_a_visible_submit_button(): void {
