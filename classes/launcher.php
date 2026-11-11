@@ -45,6 +45,8 @@ final class launcher {
     private $clock;
 
     /**
+     * Creates the launcher from raw plugin settings.
+     *
      * @param array $config Raw plugin settings (values that are not strings are treated as empty).
      * @param callable|null $clock Returns the current unix time; injectable for tests.
      */
@@ -114,6 +116,9 @@ final class launcher {
         return $problems;
     }
 
+    /**
+     * Whether every setting needed to sign a launch is present and valid.
+     */
     public function is_configured(): bool {
         return $this->problems() === [];
     }
@@ -195,6 +200,8 @@ final class launcher {
     }
 
     /**
+     * Loads the configured private key.
+     *
      * @return \OpenSSLAsymmetricKey
      * @throws \RuntimeException
      */
@@ -209,6 +216,9 @@ final class launcher {
         return $key;
     }
 
+    /**
+     * Encodes data as base64url without padding, as JWT requires.
+     */
     private static function base64url(string $data): string {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }

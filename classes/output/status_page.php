@@ -47,6 +47,8 @@ class status_page implements \renderable, \templatable {
     private array $report;
 
     /**
+     * Creates the status page.
+     *
      * @param string[] $problems Setting name => 'missing' or 'invalid'. Empty when the plugin is ready.
      * @param string[] $registration Registration value name => configured value.
      * @param array|null $jwks Public JWKS, or null.

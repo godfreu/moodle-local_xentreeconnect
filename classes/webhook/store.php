@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect\webhook;
 
 /**
@@ -41,27 +40,45 @@ interface store {
      */
     public function insert_event(array $record): bool;
 
-    /** Whether a Moodle user exists and is not deleted. */
+    /**
+     * Whether a Moodle user exists and is not deleted.
+     */
     public function user_exists(int $userid): bool;
 
-    /** Deletes every stored row of one user; returns how many. */
+    /**
+     * Deletes every stored row of one user.
+     */
     public function delete_user_events(int $userid): int;
 
-    /** Deletes rows received before the timestamp; returns how many. */
+    /**
+     * Deletes the rows received before the timestamp.
+     */
     public function delete_received_before(int $timestamp): int;
 
-    /** Deletes every stored row; returns how many. */
+    /**
+     * Deletes every stored row.
+     */
     public function delete_all(): int;
 
-    /** Counts one outcome of the receiver in the hour containing $now. */
+    /**
+     * Counts one outcome of the receiver in the hour containing the given time.
+     */
     public function count_outcome(string $outcome, int $now): void;
 
-    /** @return array<string,int> Outcome => total since the timestamp. */
+    /**
+     * Totals of each receiver outcome since the timestamp.
+     *
+     * @return array<string,int> Outcome => total since the timestamp.
+     */
     public function outcome_counts_since(int $since): array;
 
-    /** Number of activity rows received since the timestamp. */
+    /**
+     * Counts the activity rows received since the timestamp.
+     */
     public function count_events_since(int $since): int;
 
-    /** Removes counter rows older than the timestamp. */
+    /**
+     * Removes the counter rows older than the timestamp.
+     */
     public function delete_stats_before(int $timestamp): void;
 }

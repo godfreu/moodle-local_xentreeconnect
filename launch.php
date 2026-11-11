@@ -56,11 +56,16 @@ echo $OUTPUT->header();
 if ($error !== null) {
     if (is_siteadmin()) {
         echo $OUTPUT->notification(s($error), \core\output\notification::NOTIFY_WARNING);
-        echo $OUTPUT->single_button(new moodle_url('/local/xentreeconnect/index.php'),
-            get_string('statuspage', 'local_xentreeconnect'), 'get');
+        echo $OUTPUT->single_button(
+            new moodle_url('/local/xentreeconnect/index.php'),
+            get_string('statuspage', 'local_xentreeconnect'),
+            'get'
+        );
     } else {
-        echo $OUTPUT->notification(get_string('launchunavailable', 'local_xentreeconnect'),
-            \core\output\notification::NOTIFY_ERROR);
+        echo $OUTPUT->notification(
+            get_string('launchunavailable', 'local_xentreeconnect'),
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
     echo $OUTPUT->footer();
     exit;

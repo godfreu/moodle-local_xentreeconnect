@@ -22,8 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
+
+defined('MOODLE_INTERNAL') || die();
 
 /**
  * Tests for the Xentree Connect launcher.
@@ -32,6 +33,9 @@ namespace local_xentreeconnect;
  * @covers     \local_xentreeconnect\launcher
  */
 final class launcher_test extends \basic_testcase {
+    /**
+     * Fixed current time.
+     */
     private const NOW = 1790000000;
 
     /** @var string PEM of a throwaway RSA key created for the test run. */
@@ -43,6 +47,9 @@ final class launcher_test extends \basic_testcase {
         self::$pem = $pem;
     }
 
+    /**
+     * A complete configuration with optional overrides.
+     */
     private function config(array $overrides = []): array {
         return $overrides + [
             'baseurl' => 'https://my.xentree.ai',
@@ -55,10 +62,16 @@ final class launcher_test extends \basic_testcase {
         ];
     }
 
+    /**
+     * Builds a launcher with a fixed clock.
+     */
     private function launcher(array $overrides = []): launcher {
         return new launcher($this->config($overrides), fn() => self::NOW);
     }
 
+    /**
+     * Decodes one base64url part of a JWT.
+     */
     private function decode(string $segment): array {
         $json = base64_decode(strtr($segment, '-_', '+/'));
         return json_decode($json, true, 512, JSON_THROW_ON_ERROR);

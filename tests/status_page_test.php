@@ -24,6 +24,8 @@
 
 namespace local_xentreeconnect;
 
+defined('MOODLE_INTERNAL') || die();
+
 use local_xentreeconnect\output\status_page;
 
 /**
@@ -53,6 +55,9 @@ final class status_page_test extends \basic_testcase {
         ];
     }
 
+    /**
+     * Exports a status page for the given state.
+     */
     private function export(array $problems = [], ?array $jwks = ['keys' => []], string $jwkserror = ''): \stdClass {
         $registration = ['clientid' => 'example-client', 'issuer' => '', 'audience' => 'xentree-connect',
             'organizationid' => 'org-1'];

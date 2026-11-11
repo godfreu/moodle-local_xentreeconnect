@@ -40,6 +40,8 @@ final class status_report {
     public const WINDOW = DAYSECS;
 
     /**
+     * Builds the data of the status page.
+     *
      * @param credentials $credentials
      * @param store $store
      * @param string $receiverurl Address to register in Xentree.
@@ -93,6 +95,8 @@ final class status_report {
     }
 
     /**
+     * Reduces a resolved credential to what the page may show.
+     *
      * @param array{value:string,source:string,problem:?string} $resolved
      * @return array{configured:bool,source:string,problem:?string}
      */

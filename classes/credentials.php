@@ -35,9 +35,21 @@ namespace local_xentreeconnect;
  * @package    local_xentreeconnect
  */
 final class credentials {
+    /**
+     * Value forced in config.php.
+     */
     public const FROM_CONFIG = 'config.php';
+    /**
+     * Value read from a file outside the web root.
+     */
     public const FROM_FILE = 'file';
+    /**
+     * Value saved in the Moodle database.
+     */
     public const FROM_DATABASE = 'database';
+    /**
+     * No value is configured.
+     */
     public const NONE = 'none';
 
     /** Item (setting holding the value) => setting holding the path of a file that contains it. */
@@ -53,9 +65,12 @@ final class credentials {
     private array $stored;
     /** @var callable */
     private $reader;
+    /** @var string|null Directory served by the web server. */
     private ?string $webroot;
 
     /**
+     * Creates the resolver from explicit settings.
+     *
      * @param array $forced Settings forced in config.php.
      * @param array $stored Settings saved in the database.
      * @param callable|null $reader fn(string $path): ?string returning the file content, null when unreadable.
@@ -80,8 +95,10 @@ final class credentials {
     public static function from_site_config(): self {
         global $CFG;
         $forced = [];
-        if (!empty($CFG->forced_plugin_settings['local_xentreeconnect']) &&
-                is_array($CFG->forced_plugin_settings['local_xentreeconnect'])) {
+        if (
+            !empty($CFG->forced_plugin_settings['local_xentreeconnect']) &&
+                is_array($CFG->forced_plugin_settings['local_xentreeconnect'])
+        ) {
             $forced = $CFG->forced_plugin_settings['local_xentreeconnect'];
         }
         $stored = (array) get_config('local_xentreeconnect');
@@ -90,6 +107,8 @@ final class credentials {
     }
 
     /**
+     * Finds one credential and reports where it came from.
+     *
      * @param string $item One of the keys of {@see self::ITEMS}.
      * @return array{value:string,source:string,problem:?string} Value ('' when none), where it came from, and a
      *         problem code ('insidewebroot', 'unreadable', 'empty') when a configured file could not be used.
@@ -127,15 +146,23 @@ final class credentials {
         return ['value' => '', 'source' => self::NONE, 'problem' => $problem];
     }
 
-    /** Convenience: only the value. */
+    /**
+     * Convenience: only the value of one credential.
+     */
     public function value(string $item): string {
         return $this->resolve($item)['value'];
     }
 
+    /**
+     * Trimmed string value, or an empty string for anything else.
+     */
     private function text($value): string {
         return is_string($value) ? trim($value) : '';
     }
 
+    /**
+     * Whether a path is inside the directory the web server serves.
+     */
     private function is_inside_webroot(string $path): bool {
         if ($this->webroot === null || $this->webroot === '') {
             return false;
@@ -145,6 +172,9 @@ final class credentials {
         return $file === $root || strpos($file, $root . '/') === 0;
     }
 
+    /**
+     * Resolves a path for comparison, using forward slashes.
+     */
     private function normalise(string $path): string {
         $real = @realpath($path);
         return str_replace('\\', '/', $real !== false ? $real : $path);

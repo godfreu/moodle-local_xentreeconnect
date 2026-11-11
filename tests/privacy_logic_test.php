@@ -22,8 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
+
+defined('MOODLE_INTERNAL') || die();
 
 // Needs the stand-ins from tests/standalone/moodle_stubs.php; inside Moodle the real API is tested by tests/privacy/provider_test.php.
 if (!class_exists('fake_moodle_db')) {
@@ -60,9 +61,12 @@ final class privacy_logic_test extends \basic_testcase {
         writer::$exports = [];
     }
 
+    /**
+     * Reads a language string of the plugin.
+     */
     private function lang(string $lang): array {
         $string = [];
-        require dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php";
+        require(dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php");
         return $string;
     }
 
@@ -70,8 +74,10 @@ final class privacy_logic_test extends \basic_testcase {
         $collection = provider::get_metadata(new collection());
         $this->assertSame(['local_xentreeconnect_event'], array_keys($collection->tables));
         $this->assertSame(['xentree'], array_keys($collection->links));
-        $this->assertSame(['userid', 'eventtype', 'occurredat', 'receivedat', 'sessionseconds', 'sessionstatus'],
-            array_keys($collection->tables['local_xentreeconnect_event']['fields']));
+        $this->assertSame(
+            ['userid', 'eventtype', 'occurredat', 'receivedat', 'sessionseconds', 'sessionstatus'],
+            array_keys($collection->tables['local_xentreeconnect_event']['fields'])
+        );
         // The table's columns that identify a delivery are deliberately not part of what is declared/exported.
         $keys = [$collection->tables['local_xentreeconnect_event']['summary'], $collection->links['xentree']['summary']];
         foreach ([$collection->tables['local_xentreeconnect_event']['fields'], $collection->links['xentree']['fields']] as $fields) {

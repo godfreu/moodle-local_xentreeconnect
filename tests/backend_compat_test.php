@@ -22,8 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/standalone/memory_store.php');
 
@@ -38,6 +39,7 @@ use local_xentreeconnect\webhook\receiver;
  * @covers     \local_xentreeconnect\webhook\receiver
  */
 final class backend_compat_test extends \basic_testcase {
+    /** @var array Deliveries produced by the Xentree backend's signing code. */
     private static array $fixtures;
 
     public static function setUpBeforeClass(): void {
@@ -48,6 +50,9 @@ final class backend_compat_test extends \basic_testcase {
         }
     }
 
+    /**
+     * Sends one recorded delivery to the receiver.
+     */
     private function deliver(string $name, array $secrets, ?int $now = null, ?memory_store $store = null): array {
         $fixture = self::$fixtures[$name];
         $store ??= new memory_store([7, 8]);

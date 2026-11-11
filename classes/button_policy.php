@@ -32,13 +32,25 @@ namespace local_xentreeconnect;
  * @package    local_xentreeconnect
  */
 final class button_policy {
+    /**
+     * Show the working button.
+     */
     public const BUTTON = 'button';
+    /**
+     * Show the not-configured notice to a site admin.
+     */
     public const ADMIN_NOTICE = 'admin_notice';
+    /**
+     * Show nothing.
+     */
     public const HIDDEN = 'hidden';
 
     /** Pages the admin can enable the button on. */
     public const PLACEMENTS = ['dashboard', 'course', 'login'];
 
+    /**
+     * Longest button text that is used, in characters.
+     */
     public const MAX_LABEL_LENGTH = 80;
 
     /**
@@ -81,6 +93,9 @@ final class button_policy {
         return array_values(array_intersect(self::PLACEMENTS, $enabled));
     }
 
+    /**
+     * Whether the button is enabled on the page type.
+     */
     public static function should_render(string $pagetype, array $enabled): bool {
         $placement = self::placement_for_pagetype($pagetype);
         return $placement !== null && in_array($placement, $enabled, true);
@@ -94,6 +109,9 @@ final class button_policy {
         if ($custom === '') {
             return $default;
         }
-        return function_exists('mb_substr') ? mb_substr($custom, 0, self::MAX_LABEL_LENGTH) : substr($custom, 0, self::MAX_LABEL_LENGTH);
+        if (function_exists('mb_substr')) {
+            return mb_substr($custom, 0, self::MAX_LABEL_LENGTH);
+        }
+        return substr($custom, 0, self::MAX_LABEL_LENGTH);
     }
 }

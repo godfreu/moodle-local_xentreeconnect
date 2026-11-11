@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,10 +34,16 @@ require_once($CFG->libdir . '/adminlib.php');
  * @package    local_xentreeconnect
  */
 class admin_setting_privatekey extends \admin_setting_configtextarea {
+    /**
+     * Creates the private key setting.
+     */
     public function __construct(string $name, string $visiblename, string $description) {
         parent::__construct($name, $visiblename, $description, '', PARAM_RAW, '60', '12');
     }
 
+    /**
+     * Validates the submitted private key.
+     */
     public function validate($data) {
         $result = parent::validate($data);
         if ($result !== true) {

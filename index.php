@@ -39,13 +39,17 @@ $PAGE->set_heading(get_string('statuspage', 'local_xentreeconnect'));
 $store = new \local_xentreeconnect\moodle_store();
 $statusurl = new moodle_url('/local/xentreeconnect/index.php');
 
-// "Delete all Xentree data": a confirmation page first, then a sesskey-protected POST.
+// Delete all Xentree data: a confirmation page first, then a sesskey-protected POST.
 if (optional_param('deleteall', 0, PARAM_BOOL)) {
     if (optional_param('confirm', 0, PARAM_BOOL)) {
         require_sesskey();
         $deleted = $store->delete_all();
-        redirect($statusurl, get_string('deletealldone', 'local_xentreeconnect', $deleted), null,
-            \core\output\notification::NOTIFY_SUCCESS);
+        redirect(
+            $statusurl,
+            get_string('deletealldone', 'local_xentreeconnect', $deleted),
+            null,
+            \core\output\notification::NOTIFY_SUCCESS
+        );
     }
     echo $OUTPUT->header();
     echo $OUTPUT->confirm(

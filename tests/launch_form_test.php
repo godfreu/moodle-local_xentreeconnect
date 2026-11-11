@@ -24,6 +24,8 @@
 
 namespace local_xentreeconnect;
 
+defined('MOODLE_INTERNAL') || die();
+
 use local_xentreeconnect\output\launch_form;
 
 /**
@@ -33,7 +35,13 @@ use local_xentreeconnect\output\launch_form;
  * @covers     \local_xentreeconnect\output\launch_form
  */
 final class launch_form_test extends \basic_testcase {
+    /**
+     * Launch endpoint used in the tests.
+     */
     private const ACTION = 'https://my.xentree.ai/connect/v1/launch/example-client';
+    /**
+     * Assertion used in the tests.
+     */
     private const ASSERTION = 'aaa.bbb.ccc';
 
     public function test_export_passes_the_action_and_assertion_unchanged(): void {
@@ -71,8 +79,10 @@ final class launch_form_test extends \basic_testcase {
             $this->assertStringNotContainsString('js_amd_inline', $source, $file);
             $this->assertStringNotContainsString('<script', $source, $file);
         }
-        $this->assertStringContainsString("js_call_amd('local_xentreeconnect/launch', 'init'",
-            file_get_contents(__DIR__ . '/../launch.php'));
+        $this->assertStringContainsString(
+            "js_call_amd('local_xentreeconnect/launch', 'init'",
+            file_get_contents(__DIR__ . '/../launch.php')
+        );
     }
 
     public function test_amd_source_submits_the_form_by_id(): void {

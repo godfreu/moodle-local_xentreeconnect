@@ -47,6 +47,8 @@ class launch_form implements \renderable, \templatable {
     private string $continuelabel;
 
     /**
+     * Creates the launch form.
+     *
      * @param string $action Xentree launch endpoint the form is posted to.
      * @param string $assertion Signed launch assertion.
      * @param string $redirecting Text shown while redirecting.

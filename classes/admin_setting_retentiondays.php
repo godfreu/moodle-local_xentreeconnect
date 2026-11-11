@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 defined('MOODLE_INTERNAL') || die();
@@ -35,10 +34,16 @@ require_once($CFG->libdir . '/adminlib.php');
  * @package    local_xentreeconnect
  */
 class admin_setting_retentiondays extends \admin_setting_configtext {
+    /**
+     * Creates the retention setting.
+     */
     public function __construct(string $name, string $visiblename, string $description, string $defaultsetting) {
         parent::__construct($name, $visiblename, $description, $defaultsetting, PARAM_INT);
     }
 
+    /**
+     * Validates the submitted retention.
+     */
     public function validate($data) {
         $result = parent::validate($data);
         if ($result !== true) {

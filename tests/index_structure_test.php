@@ -24,6 +24,8 @@
 
 namespace local_xentreeconnect;
 
+defined('MOODLE_INTERNAL') || die();
+
 /**
  * The receiver report and the "Delete all" button once ended up inside the delete-confirmation branch of index.php,
  * so the normal status page never showed them. This test keeps the confirmation branch limited to confirm and delete.

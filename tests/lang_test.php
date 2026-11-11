@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
@@ -32,13 +31,16 @@ namespace local_xentreeconnect;
  * @coversNothing
  */
 final class lang_test extends \basic_testcase {
+    /**
+     * Loads the strings of one language.
+     */
     private function strings(string $lang): array {
         $string = [];
         $file = dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php";
         if (!defined('MOODLE_INTERNAL')) {
             define('MOODLE_INTERNAL', true);
         }
-        require $file;
+        require($file);
         return $string;
     }
 

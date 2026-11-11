@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- stand-ins for Moodle classes used only by the standalone test runner.
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify

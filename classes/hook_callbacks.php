@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 use core\hook\output\before_standard_top_of_body_html_generation;
@@ -47,8 +46,10 @@ class hook_callbacks {
         try {
             $button = connect_button::for_current_user();
             if ($button !== null) {
-                $hook->add_html($OUTPUT->render_from_template('local_xentreeconnect/connect_button',
-                    $button->export_for_template($OUTPUT)));
+                $hook->add_html($OUTPUT->render_from_template(
+                    'local_xentreeconnect/connect_button',
+                    $button->export_for_template($OUTPUT)
+                ));
             }
         } catch (\Throwable $e) {
             // Never let the button break a page.

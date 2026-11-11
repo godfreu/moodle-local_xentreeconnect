@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect\output;
 
 use local_xentreeconnect\button_policy;
@@ -40,6 +39,9 @@ class connect_button implements \renderable, \templatable {
     /** @var string */
     private string $label;
 
+    /**
+     * Creates the button for a state and label.
+     */
     private function __construct(string $state, string $label) {
         $this->state = $state;
         $this->label = $label;
@@ -60,6 +62,9 @@ class connect_button implements \renderable, \templatable {
         return new self($state, $label);
     }
 
+    /**
+     * Data for the templates/connect_button mustache template.
+     */
     public function export_for_template(\renderer_base $output): \stdClass {
         $data = new \stdClass();
         $data->showbutton = $this->state === button_policy::BUTTON;
