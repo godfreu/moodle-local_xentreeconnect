@@ -70,14 +70,18 @@ final class index_structure_test extends \basic_testcase {
         $this->assertStringNotContainsString("'deletealldata'", $branch);
     }
 
-    public function test_status_report_and_delete_button_are_on_the_normal_page(): void {
+    public function test_normal_page_renders_the_status_page_that_holds_the_report_and_delete_button(): void {
         $source = file_get_contents(__DIR__ . '/../index.php');
-        [, $to] = $this->deleteall_block($source);
+        [$from, $to] = $this->deleteall_block($source);
+        $branch = substr($source, $from, $to - $from);
         $page = substr($source, $to);
 
-        $this->assertStringContainsString('status_report::build', $page);
-        $this->assertStringContainsString("'deletealldata'", $page);
-        $this->assertStringContainsString("['deleteall' => 1]", $page);
+        $this->assertStringNotContainsString('status_page', $branch);
+        $this->assertStringContainsString('output\\status_page::for_site()', $page);
         $this->assertStringContainsString('$OUTPUT->footer()', $page);
+
+        $renderable = file_get_contents(__DIR__ . '/../classes/output/status_page.php');
+        $this->assertStringContainsString('status_report::build', $renderable);
+        $this->assertStringContainsString("['deleteall' => 1]", $renderable);
     }
 }
