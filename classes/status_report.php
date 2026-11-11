@@ -97,8 +97,8 @@ final class status_report {
     /**
      * Reduces a resolved credential to what the page may show.
      *
-     * @param array{value:string,source:string,problem:?string} $resolved
-     * @return array{configured:bool,source:string,problem:?string}
+     * @param array $resolved Result of credentials::resolve(): value, source and problem.
+     * @return array Keys configured, source and problem.
      */
     private static function describe(array $resolved): array {
         return [

@@ -132,10 +132,9 @@ final class receiver {
      * Authenticates and applies one delivery.
      *
      * @param string $method HTTP method.
-     * @param array<string,string> $headers Lower-cased header names.
-     * @param callable $readbody fn(): ?string returning the body, null when it exceeds MAX_BODY. Called only after
-     *        the cheap checks, so an oversized or misdirected request is never read.
-     * @return array{status:int,body:array,headers:array} What to send back.
+     * @param array $headers Lower-cased header names to values.
+     * @param callable $readbody Returns the body, or null when it exceeds MAX_BODY; called only after the cheap checks.
+     * @return array What to send back: status, body and headers.
      */
     public function handle(string $method, array $headers, callable $readbody): array {
         if (strtoupper($method) !== 'POST') {

@@ -96,7 +96,12 @@ final class memory_store implements store {
         }
     }
 
-    /** Test helper: the total counted for an outcome, any hour. */
+    /**
+     * Test helper: the total counted for an outcome, any hour.
+     *
+     * @param string $outcome Outcome code.
+     * @return int
+     */
     public function counted(string $outcome): int {
         $total = 0;
         foreach ($this->stats as $key => $count) {
