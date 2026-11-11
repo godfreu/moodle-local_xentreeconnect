@@ -24,8 +24,6 @@
 
 namespace local_xentreeconnect;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * The webhook entry script has no Moodle session, logs through debugging() and never logs more than ids.
  *

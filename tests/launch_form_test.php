@@ -24,8 +24,6 @@
 
 namespace local_xentreeconnect;
 
-defined('MOODLE_INTERNAL') || die();
-
 use local_xentreeconnect\output\launch_form;
 
 /**

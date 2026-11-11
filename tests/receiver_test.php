@@ -117,7 +117,13 @@ final class receiver_test extends \basic_testcase {
     /**
      * Sends a request to the receiver.
      */
-    private function send(array $payload, array $over = [], ?string $raw = null, ?receiver $receiver = null, string $method = 'POST'): array {
+    private function send(
+        array $payload,
+        array $over = [],
+        ?string $raw = null,
+        ?receiver $receiver = null,
+        string $method = 'POST'
+    ): array {
         [$headers, $body] = $this->request($payload, $over, $raw);
         return ($receiver ?? $this->receiver())->handle($method, $headers, fn() => $body);
     }
@@ -132,8 +138,7 @@ final class receiver_test extends \basic_testcase {
         }
     }
 
-    // --- accepted events ---------------------------------------------------------------
-
+    // Accepted events.
     public function test_valid_session_is_stored_with_only_the_minimal_fields(): void {
         $response = $this->send($this->session());
         $this->assert_reply(200, $response, 'ok');
@@ -164,8 +169,7 @@ final class receiver_test extends \basic_testcase {
         $this->assertNull($row['sessionstatus']);
     }
 
-    // --- idempotency -------------------------------------------------------------------
-
+    // Idempotency.
     public function test_redelivery_with_the_same_delivery_id_is_acknowledged_without_a_second_row(): void {
         $this->send($this->session());
         $again = $this->send($this->session());
@@ -180,8 +184,7 @@ final class receiver_test extends \basic_testcase {
         $this->assertCount(1, $this->store->events);
     }
 
-    // --- authentication ----------------------------------------------------------------
-
+    // Authentication.
     public function test_bad_signature_is_rejected_and_nothing_is_processed(): void {
         $this->assert_reply(401, $this->send($this->session(), ['secrets' => ['whsec_wrong']]), 'bad_signature');
         $this->assertSame([], $this->store->events);
@@ -212,16 +215,27 @@ final class receiver_test extends \basic_testcase {
 
     public function test_uppercase_hex_signatures_are_accepted(): void {
         [$headers, $body] = $this->request($this->session());
-        $headers['x-xentree-signature-v2'] = preg_replace_callback('/v1=([0-9a-f]+)/', fn($m) => 'v1=' . strtoupper($m[1]), $headers['x-xentree-signature-v2']);
+        $headers['x-xentree-signature-v2'] = preg_replace_callback(
+            '/v1=([0-9a-f]+)/',
+            fn($m) => 'v1=' . strtoupper($m[1]),
+            $headers['x-xentree-signature-v2']
+        );
         $this->assert_reply(200, $this->receiver()->handle('POST', $headers, fn() => $body));
     }
 
     public function test_rotation_accepts_either_secret_and_rejects_neither(): void {
-        $both = ['secrets' => [self::SECRET, self::OLD]]; // what Xentree sends during the 24 hour grace period
+        // What Xentree sends during the 24 hour grace period.
+        $both = ['secrets' => [self::SECRET, self::OLD]];
         $this->assert_reply(200, $this->send($this->session(), $both, null, $this->receiver([self::SECRET, self::OLD])));
-        $this->assert_reply(200, $this->send($this->session(['event_id' => 'e2']), $both + ['delivery' => 'delivery-0002'], null, $this->receiver([self::OLD])));
-        $this->assert_reply(200, $this->send($this->session(['event_id' => 'e3']), $both + ['delivery' => 'delivery-0003'], null, $this->receiver([self::SECRET])));
-        $this->assert_reply(401, $this->send($this->session(['event_id' => 'e4']), $both + ['delivery' => 'delivery-0004'], null, $this->receiver(['whsec_other'])));
+        $request = $this->session(['event_id' => 'e2']);
+        $over = $both + ['delivery' => 'delivery-0002'];
+        $this->assert_reply(200, $this->send($request, $over, null, $this->receiver([self::OLD])));
+        $request = $this->session(['event_id' => 'e3']);
+        $over = $both + ['delivery' => 'delivery-0003'];
+        $this->assert_reply(200, $this->send($request, $over, null, $this->receiver([self::SECRET])));
+        $request = $this->session(['event_id' => 'e4']);
+        $over = $both + ['delivery' => 'delivery-0004'];
+        $this->assert_reply(401, $this->send($request, $over, null, $this->receiver(['whsec_other'])));
         $this->assertCount(3, $this->store->events);
     }
 
@@ -231,8 +245,7 @@ final class receiver_test extends \basic_testcase {
         $this->assertSame([], $this->store->events);
     }
 
-    // --- request shape ------------------------------------------------------------------
-
+    // Request shape.
     public function test_only_post_is_allowed(): void {
         foreach (['GET', 'PUT', 'DELETE', 'HEAD'] as $method) {
             $response = $this->send($this->session(), [], null, null, $method);
@@ -296,8 +309,7 @@ final class receiver_test extends \basic_testcase {
         $this->assert_reply(400, $this->send($this->session(), ['event' => 'connect.consent.revoked']), 'bad_payload');
     }
 
-    // --- identity ------------------------------------------------------------------------
-
+    // Identity.
     public function test_unknown_or_deleted_user_is_acknowledged_and_counted_not_retried(): void {
         $this->assert_reply(200, $this->send($this->session(['external_subject' => 'moodle-user-404'])), 'ok');
         $this->assertSame(1, $this->store->counted('unknown_subject'));
@@ -321,7 +333,8 @@ final class receiver_test extends \basic_testcase {
     public static function bad_subjects(): array {
         return [
             ['moodle-user-0'], ['moodle-user-007'], ['moodle-user-'], ['moodle-user-7 '], [' moodle-user-7'], ['moodle-user--7'],
-            ['moodle-user-7a'], ['Moodle-User-7'], ['other-7'], ['7'], [''], ['moodle-user-99999999999'], ['moodle-user-2147483648'],
+            ['moodle-user-7a'], ['Moodle-User-7'], ['other-7'], ['7'], [''],
+            ['moodle-user-99999999999'], ['moodle-user-2147483648'],
             ["moodle-user-7\n"],
         ];
     }
@@ -331,12 +344,14 @@ final class receiver_test extends \basic_testcase {
         $this->assertSame(2147483647, receiver::user_from_subject('moodle-user-2147483647'));
     }
 
-    // --- other events ----------------------------------------------------------------------
-
+    // Other events.
     public function test_consent_revoked_deletes_that_users_rows_only_and_is_idempotent(): void {
         $this->send($this->session(), ['delivery' => 'delivery-0001']);
         $this->send($this->session(['event_id' => 'evt-b']), ['delivery' => 'delivery-0002']);
-        $this->send($this->session(['event_id' => 'evt-c', 'external_subject' => 'moodle-user-8']), ['delivery' => 'delivery-0003']);
+        $this->send(
+            $this->session(['event_id' => 'evt-c', 'external_subject' => 'moodle-user-8']),
+            ['delivery' => 'delivery-0003']
+        );
         $this->assertCount(3, $this->store->events);
 
         $this->assert_reply(200, $this->send($this->revoked(), ['delivery' => 'delivery-0004']), 'ok');
@@ -350,7 +365,8 @@ final class receiver_test extends \basic_testcase {
     public function test_consent_revoked_stores_nothing_and_checks_its_fields(): void {
         $this->send($this->revoked());
         $this->assertSame([], $this->store->events);
-        $this->assert_reply(400, $this->send($this->revoked(['reason' => 'because']), ['delivery' => 'delivery-0009']), 'bad_payload');
+        $response = $this->send($this->revoked(['reason' => 'because']), ['delivery' => 'delivery-0009']);
+        $this->assert_reply(400, $response, 'bad_payload');
         $this->assert_reply(200, $this->send($this->revoked(['external_subject' => 'nonsense']), ['delivery' => 'delivery-0010']));
         $this->assertSame(1, $this->store->counted('unknown_subject'));
     }
@@ -394,18 +410,24 @@ final class receiver_test extends \basic_testcase {
         $this->assertSame([], $this->store->events);
     }
 
-    // --- what leaves the endpoint --------------------------------------------------------------
-
+    // What leaves the endpoint.
     public function test_replies_carry_short_codes_only(): void {
         $payload = $this->session(['event_type' => 'x@example.org', 'external_subject' => 'moodle-user-7']);
-        foreach ([$this->send($payload, ['event' => 'x@example.org']), $this->send($this->session(), ['secrets' => ['nope']])] as $response) {
+        $responses = [
+            $this->send($payload, ['event' => 'x@example.org']),
+            $this->send($this->session(), ['secrets' => ['nope']]),
+        ];
+        foreach ($responses as $response) {
             $json = json_encode($response['body']);
             $this->assertMatchesRegularExpression('/^\{"(status|error)":"[a-z_]+"\}$/', $json);
         }
     }
 
     public function test_log_lines_hold_event_type_and_ids_but_never_content(): void {
-        $this->send($this->session(['event_type' => 'who@example.org/../etc', 'external_subject' => 'moodle-user-7']), ['event' => '']);
+        $this->send(
+            $this->session(['event_type' => 'who@example.org/../etc', 'external_subject' => 'moodle-user-7']),
+            ['event' => '']
+        );
         $this->send($this->session(), ['secrets' => ['nope'], 'delivery' => 'delivery-0777']);
         $dump = json_encode($this->logged);
         $this->assertStringNotContainsString('@', $dump);
@@ -419,6 +441,9 @@ final class receiver_test extends \basic_testcase {
             'HTTP_X_XENTREE_SIGNATURE_V2' => 't=1,v1=ab', 'HTTP_X_XENTREE_DELIVERY' => 'abc', 'CONTENT_LENGTH' => '12',
             'REQUEST_METHOD' => 'POST', 'argv' => ['x'],
         ]);
-        $this->assertSame(['x-xentree-signature-v2' => 't=1,v1=ab', 'x-xentree-delivery' => 'abc', 'content-length' => '12'], $headers);
+        $this->assertSame(
+            ['x-xentree-signature-v2' => 't=1,v1=ab', 'x-xentree-delivery' => 'abc', 'content-length' => '12'],
+            $headers
+        );
     }
 }

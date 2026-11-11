@@ -26,7 +26,8 @@ namespace local_xentreeconnect;
 
 defined('MOODLE_INTERNAL') || die();
 
-// Needs the stand-ins from tests/standalone/moodle_stubs.php; inside Moodle the real API is tested by tests/privacy/provider_test.php.
+// Needs the stand-ins from tests/standalone/moodle_stubs.php; inside Moodle the real API is tested by
+// tests/privacy/provider_test.php.
 if (!class_exists('fake_moodle_db')) {
     return;
 }
@@ -52,9 +53,11 @@ final class privacy_logic_test extends \basic_testcase {
         $DB = new \fake_moodle_db();
         $DB->rows = [
             1 => (object) ['id' => 1, 'userid' => 7, 'eventtype' => 'erpi.session.completed', 'occurredat' => 1790000300,
-                'receivedat' => 1790000400, 'sessionseconds' => 600, 'sessionstatus' => 'completed', 'deliveryid' => 'd1', 'eventid' => 'e1'],
+                'receivedat' => 1790000400, 'sessionseconds' => 600, 'sessionstatus' => 'completed',
+                'deliveryid' => 'd1', 'eventid' => 'e1'],
             2 => (object) ['id' => 2, 'userid' => 7, 'eventtype' => 'erpi.session.completed', 'occurredat' => 1790000100,
-                'receivedat' => 1790000200, 'sessionseconds' => null, 'sessionstatus' => null, 'deliveryid' => 'd2', 'eventid' => 'e2'],
+                'receivedat' => 1790000200, 'sessionseconds' => null, 'sessionstatus' => null,
+                'deliveryid' => 'd2', 'eventid' => 'e2'],
             3 => (object) ['id' => 3, 'userid' => 8, 'eventtype' => 'erpi.session.completed', 'occurredat' => 1, 'receivedat' => 2,
                 'sessionseconds' => 5, 'sessionstatus' => 'completed', 'deliveryid' => 'd3', 'eventid' => 'e3'],
         ];
@@ -80,7 +83,8 @@ final class privacy_logic_test extends \basic_testcase {
         );
         // Every stored column is declared (the delivery and event ids included); the export lists the activity only.
         $keys = [$collection->tables['local_xentreeconnect_event']['summary'], $collection->links['xentree']['summary']];
-        foreach ([$collection->tables['local_xentreeconnect_event']['fields'], $collection->links['xentree']['fields']] as $fields) {
+        $declared = [$collection->tables['local_xentreeconnect_event']['fields'], $collection->links['xentree']['fields']];
+        foreach ($declared as $fields) {
             $keys = array_merge($keys, array_values($fields));
         }
         foreach (['en', 'id'] as $lang) {

@@ -24,8 +24,6 @@
 
 namespace local_xentreeconnect;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * Tests for the credential lookup.
  *
