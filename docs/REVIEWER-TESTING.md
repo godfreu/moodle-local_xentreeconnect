@@ -58,6 +58,8 @@ Xentree sends `erpi.session.completed` when a member finishes a learning session
 the consent text version 2 or later, and `connect.consent.revoked` when a member withdraws.
 [VERIFIKASI PRODUCTION: status ketersediaan event ini di production]
 
+The webhook's event list in Xentree offers only these two events. A test delivery (`webhook.test.ping`) is sent with the **Send Test Ping** button of the webhook in Xentree; it is not part of the event list, and the status page counts it as `ping`.
+
 **3a. Through Xentree.** [ISI: langkah menyelesaikan satu sesi belajar di Xentree dengan akun reviewer, dan di mana
 mendaftarkan/menguji webhook ke URL situs reviewer]. Then open the status page: the counters for the last 24 hours show
 the delivery, and the member's row appears in the privacy export

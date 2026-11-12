@@ -16,8 +16,8 @@ Xentree is not part of the plugin and is not installed on your Moodle server.
 |---|---|
 | **Service** | Xentree, at the Xentree base URL set in the plugin (default `https://my.xentree.ai`, or your organisation's custom domain). |
 | **What you need** | A Xentree **organisation** with the **Connect entitlement**, and a **Connect integration** registered for this Moodle site in that organisation: Client ID, Issuer, Audience, Organization ID, a key ID (`kid`) and the public JWKS of an RSA key pair you generate. Optionally a **webhook** with its signing secret, to receive learning activity. |
-| **How to get access** | Self-service, without contacting Xentree. A user with the **Administrator** role in Xentree opens **Organizations** (<https://my.xentree.ai/admin/organizations>), clicks the **Connect Integrations** icon, then **+ Add Integration**, and uses either the interactive wizard (one command) or the manual form: Name, Client ID, Issuer, Audience, Policy URL (optional), Description (optional), the option "Use a seat automatically on first Connect", and the JWKS JSON. Which plan includes the Connect entitlement: [ISI: entitlement plan]. |
-| **Cost** | Freemium. The **Basic** plan is free and **Pro** is for individuals; organisations use a monthly or yearly subscription on the **Team** or **Flexible** plan. Individuals do not pay to join an organisation. |
+| **How to get access** | Self-service, without contacting Xentree. A user with the **Administrator** role in Xentree opens **Organizations** (<https://my.xentree.ai/admin/organizations>), clicks the **Connect Integrations** icon, then **+ Add Integration**, and uses either the interactive wizard (one command) or the manual form: Name, Client ID, Issuer, Audience, Policy URL (optional), Description (optional), the option "Use a seat automatically on first Connect", and the JWKS JSON. The organisation needs the Connect entitlement, which comes with the **Team** or **Flexible** plan. |
+| **Cost** | Connect is an organisation feature: it requires an organisation on the Team or Flexible plan (monthly or yearly subscription). Individual members do not pay to join an organisation, but each person needs their own Xentree account, which is linked to their Moodle account at first launch with their consent. |
 | **User accounts** | Every individual needs their own Xentree account. The Xentree account is linked to the Moodle account on the first launch, through a consent screen that the owner of the account accepts (Google sign-in or sign-up is available). Roles in Xentree: Member, Administrator, Team Manager, Billing Manager. What "Use a seat automatically on first Connect" does: [ISI: seat behaviour]. |
 | **Privacy policy / terms** | [Privacy policy](https://www.xentree.ai/privacy) · [Terms of service](https://www.xentree.ai/terms) |
 
@@ -198,7 +198,7 @@ Nothing else is sent by the plugin. (The user's browser then talks to Xentree di
 |---|---|
 | `erpi.session.completed` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject` (`moodle-user-<ID>`), `session_duration_seconds`, `session_status` |
 | `connect.consent.revoked` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject`, `reason` (`user`, `admin` or `deprovision`) |
-| `webhook.test.ping` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `message`; counted, not stored |
+| `webhook.test.ping` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `message`; counted, not stored. Xentree sends it when an administrator presses **Send Test Ping**; it is not an event you select in the webhook's event list |
 
 Stored from `erpi.session.completed` only: delivery id, event id, event type, Moodle user, when it happened, when it was
 received, duration and status. Unknown events, unknown users and newer schema versions are acknowledged, counted and
