@@ -4,7 +4,33 @@ Beta plugin (0.2.1) that lets a Moodle site act as a trusted platform for Xentre
 JWT launch assertion for the logged-in Moodle user and sends the learner to Xentree, and it can receive learning
 activity back from Xentree for members who agreed to share it (see "Receiving activity from Xentree").
 
-Requires Moodle 4.4 or later (tested on 5.2).
+Requires Moodle 4.4 or later. Automated tests run on Moodle 4.4, 4.5 and 5.0.
+
+## External service requirements
+
+**Xentree is an external third-party service, and this plugin does not work without a Xentree organisation that has a
+Connect integration for your Moodle site.** The plugin is only a connector to Xentree ([xentree.ai](https://www.xentree.ai));
+Xentree is not part of the plugin and is not installed on your Moodle server.
+
+| | |
+|---|---|
+| **Service** | Xentree, at the Xentree base URL set in the plugin (default `https://my.xentree.ai`, or your organisation's custom domain). |
+| **What you need** | A Xentree **organisation** with the **Connect entitlement**, and a **Connect integration** registered for this Moodle site in that organisation: Client ID, Issuer, Audience, Organization ID, a key ID (`kid`) and the public JWKS of an RSA key pair you generate. Optionally a **webhook** with its signing secret, to receive learning activity. |
+| **How to get access** | Self-service, without contacting Xentree. A user with the **Administrator** role in Xentree opens **Organizations** (<https://my.xentree.ai/admin/organizations>), clicks the **Connect Integrations** icon, then **+ Add Integration**, and uses either the interactive wizard (one command) or the manual form: Name, Client ID, Issuer, Audience, Policy URL (optional), Description (optional), the option "Use a seat automatically on first Connect", and the JWKS JSON. Which plan includes the Connect entitlement: [ISI: entitlement plan]. |
+| **Cost** | Freemium. The **Basic** plan is free and **Pro** is for individuals; organisations use a monthly or yearly subscription on the **Team** or **Flexible** plan. Individuals do not pay to join an organisation. |
+| **User accounts** | Every individual needs their own Xentree account. The Xentree account is linked to the Moodle account on the first launch, through a consent screen that the owner of the account accepts (Google sign-in or sign-up is available). Roles in Xentree: Member, Administrator, Team Manager, Billing Manager. What "Use a seat automatically on first Connect" does: [ISI: seat behaviour]. |
+| **Privacy policy / terms** | [Privacy policy](https://www.xentree.ai/privacy) · [Terms of service](https://www.xentree.ai/terms) |
+
+What the plugin sends to Xentree and receives from it is listed under [Data exchanged with Xentree](#data-exchanged-with-xentree).
+Without a Xentree organisation, the plugin can be installed but the button stays hidden for users, the status page lists
+what is missing, and no data leaves your site.
+
+**Learning-activity events.** Xentree can send a `erpi.session.completed` event to this site when a member finishes a
+learning session. [VERIFIKASI PRODUCTION: tersedia di production hanya bila sudah terbukti ter-deploy] It is sent only
+when all of these are true: the organisation has the Connect entitlement, the session started from a Connect launch from
+this site, a webhook with that event type is registered, and the member agreed to share activity by accepting the
+consent text version 2 or later. Members who agreed earlier are asked again at their next launch and nothing is sent for
+them until then. Withdrawal notices (`connect.consent.revoked`) are sent regardless.
 
 ## What an admin has to do
 
@@ -103,8 +129,8 @@ retention period (default 365 days, **an interim value**; `0` keeps it until you
 about that). **Delete all Xentree data** on the status page removes everything, for example when the integration is
 switched off and withdrawal notices will no longer arrive.
 
-Until Xentree publishes the consent text that tells members their activity is shared (consent version 2), Xentree
-does not send `erpi.session.completed` at all. Withdrawal notices are sent regardless.
+Xentree sends `erpi.session.completed` only for members who accepted the consent text version 2 or later (see
+[External service requirements](#external-service-requirements)). Withdrawal notices are sent regardless.
 
 ## Tests
 
@@ -145,7 +171,7 @@ This plugin is a beta. Before using it with real learners:
   launches fail with HTTP 401. Use a new `kid` for each key.
 - **Decide the retention period** with your data-protection adviser; 365 days is an interim default.
 - **Review the consent wording** shown by Xentree with your data-protection adviser. Activity data flows to Moodle only
-  after members agree to the newer consent text.
+  after members accept consent text version 2 or later.
 - Set a real policy link (`policy_url`) on the integration in Xentree; the consent screen otherwise says none was given.
 
 ## Data exchanged with Xentree
