@@ -11,7 +11,7 @@ repository.**
 
 You need a Moodle 4.4 or later site and an administrator account.
 
-1. Copy the plugin to `local/xentreeconnect` (`public/local/xentreeconnect` on Moodle 5.1+) and run the upgrade.
+1. Copy the plugin to `local/xentreeconnect` (Moodle 5.1 and later serve plugins from the `public/` directory: `public/local/xentreeconnect`) and run the upgrade.
    Expected: two tables are created (`local_xentreeconnect_event`, `local_xentreeconnect_stat`) and nothing else changes.
 2. **Site administration → Plugins → Local plugins → Xentree Connect.** The page starts with the external service
    disclosure (what is sent, what is needed, link to the README requirements).

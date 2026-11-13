@@ -1,6 +1,6 @@
 # Xentree Connect for Moodle (local_xentreeconnect)
 
-Beta plugin (0.2.1) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
+Beta plugin (0.2.2) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
 JWT launch assertion for the logged-in Moodle user and sends the learner to Xentree, and it can receive learning
 activity back from Xentree for members who agreed to share it (see "Receiving activity from Xentree").
 
@@ -18,7 +18,7 @@ Xentree is not part of the plugin and is not installed on your Moodle server.
 | **What you need** | A Xentree **organisation** with the **Connect entitlement**, and a **Connect integration** registered for this Moodle site in that organisation: Client ID, Issuer, Audience, Organization ID, a key ID (`kid`) and the public JWKS of an RSA key pair you generate. Optionally a **webhook** with its signing secret, to receive learning activity. |
 | **How to get access** | Self-service, without contacting Xentree. A user with the **Administrator** role in Xentree opens **Organizations** (<https://my.xentree.ai/admin/organizations>), clicks the **Connect Integrations** icon, then **+ Add Integration**, and uses either the interactive wizard (one command) or the manual form: Name, Client ID, Issuer, Audience, Policy URL (optional), Description (optional), the option "Use a seat automatically on first Connect", and the JWKS JSON. The organisation needs the Connect entitlement, which comes with the **Team** or **Flexible** plan. |
 | **Cost** | Connect is an organisation feature: it requires an organisation on the Team or Flexible plan (monthly or yearly subscription). Individual members do not pay to join an organisation, but each person needs their own Xentree account, which is linked to their Moodle account at first launch with their consent. |
-| **User accounts** | Every individual needs their own Xentree account. The Xentree account is linked to the Moodle account on the first launch, through a consent screen that the owner of the account accepts (Google sign-in or sign-up is available). Roles in Xentree: Member, Administrator, Team Manager, Billing Manager. What "Use a seat automatically on first Connect" does: [ISI: seat behaviour]. |
+| **User accounts** | Every individual needs their own Xentree account. The Xentree account is linked to the Moodle account on the first launch, through a consent screen that the owner of the account accepts (Google sign-in or sign-up is available). Roles in Xentree: Member, Administrator, Team Manager, Billing Manager. If **Use a seat automatically on first Connect** is turned off, only people who are already members of the organisation can connect; anyone else is refused and asked to contact their organisation administrator. If it is turned on, a person who is not yet a member joins the organisation as a Member at their first consent and takes one seat of the organisation's plan; the launch is refused if no seat is free or the subscription is not active. People who are already members do not take an additional seat. |
 | **Privacy policy / terms** | [Privacy policy](https://www.xentree.ai/privacy) · [Terms of service](https://www.xentree.ai/terms) |
 
 What the plugin sends to Xentree and receives from it is listed under [Data exchanged with Xentree](#data-exchanged-with-xentree).
@@ -84,7 +84,7 @@ git clone https://github.com/godfreu/moodle-local_xentreeconnect.git local/xentr
 ```
 
 ### From ZIP package
-Extract the release ZIP archive into the Moodle `local/` directory so the plugin folder is `local/xentreeconnect` (or `public/local/xentreeconnect` on Moodle 5.1+).
+Extract the release ZIP archive into the Moodle `local/` directory so the plugin folder is `local/xentreeconnect` Moodle 5.1 and later serve plugins from the `public/` directory, so there the folder is `public/local/xentreeconnect`.
 
 Ensure permissions allow the web server to read the files, then run the upgrade:
 
@@ -121,7 +121,7 @@ from the internet to `webhook.php`, and rate-limit it there.
 What happens to a delivery: the signature and a 5-minute timestamp window are checked before anything is read; the
 body is capped at 256 KiB; the member is found from `moodle-user-<id>`; a repeated delivery (same delivery or event
 id) is acknowledged and stored once; unknown events and users are acknowledged and counted, never retried. Replies
-carry short codes only. Logs contain event types and delivery ids, never e-mail addresses or secrets.
+carry short codes only. Outcomes are logged through Moodle's `debugging()` (event type and delivery id, never e-mail addresses or secrets), so they appear in the server log only while debugging is turned on.
 
 Stored data: one row per completed session in `local_xentreeconnect_event` (event type, when it happened, when it
 was received, duration, status). It is **not** written to grades or course completion. Activity is deleted after the
