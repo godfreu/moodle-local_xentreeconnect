@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- stand-ins for Moodle classes used only by the standalone test runner.
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -23,10 +24,13 @@
  */
 
 // Lets the pure-PHP tests run with a plain PHPUnit, without a Moodle checkout (not shipped in the plugin zip):
-//   phpunit --bootstrap tests/standalone/bootstrap.php tests
+// phpunit --bootstrap tests/standalone/bootstrap.php tests
 // Inside Moodle, use its own PHPUnit setup instead.
 
 // Moodle constants the plugin's pure classes use.
+if (!defined('MOODLE_INTERNAL')) {
+    define('MOODLE_INTERNAL', true);
+}
 if (!defined('DAYSECS')) {
     define('DAYSECS', 86400);
 }
@@ -47,5 +51,5 @@ spl_autoload_register(function (string $class): void {
     }
 });
 
-require_once __DIR__ . '/memory_store.php';
-require_once __DIR__ . '/moodle_stubs.php';
+require_once(__DIR__ . '/memory_store.php');
+require_once(__DIR__ . '/moodle_stubs.php');

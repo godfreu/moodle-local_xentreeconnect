@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
@@ -32,17 +31,26 @@ namespace local_xentreeconnect;
  * @covers     \local_xentreeconnect\launcher
  */
 final class launcher_test extends \basic_testcase {
+    /**
+     * Fixed current time.
+     */
     private const NOW = 1790000000;
 
     /** @var string PEM of a throwaway RSA key created for the test run. */
     private static string $pem;
 
     public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
         $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
         openssl_pkey_export($key, $pem);
         self::$pem = $pem;
     }
 
+    /**
+     * A complete configuration with optional overrides.
+     *
+     * @param array $overrides Values that override the defaults.
+     */
     private function config(array $overrides = []): array {
         return $overrides + [
             'baseurl' => 'https://my.xentree.ai',
@@ -55,10 +63,20 @@ final class launcher_test extends \basic_testcase {
         ];
     }
 
+    /**
+     * Builds a launcher with a fixed clock.
+     *
+     * @param array $overrides Values that override the defaults.
+     */
     private function launcher(array $overrides = []): launcher {
         return new launcher($this->config($overrides), fn() => self::NOW);
     }
 
+    /**
+     * Decodes one base64url part of a JWT.
+     *
+     * @param string $segment The segment.
+     */
     private function decode(string $segment): array {
         $json = base64_decode(strtr($segment, '-_', '+/'));
         return json_decode($json, true, 512, JSON_THROW_ON_ERROR);

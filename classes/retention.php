@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 use local_xentreeconnect\webhook\store;
@@ -60,6 +59,9 @@ final class retention {
     /**
      * Deletes activity older than the window. Days of 0 deletes nothing.
      *
+     * @param store $store The store.
+     * @param int $days Retention in days.
+     * @param int $now Current unix time.
      * @return int Rows deleted.
      */
     public static function purge(store $store, int $days, int $now): int {

@@ -22,8 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect\privacy;
+
+defined('MOODLE_INTERNAL') || die();
 
 // Runs only inside a Moodle PHPUnit environment (it needs the real Privacy API and a database). In the standalone
 // runner the framework class is absent and the file declares nothing.
@@ -45,6 +46,12 @@ use core_privacy\tests\provider_testcase;
  * @runTestsInSeparateProcesses
  */
 final class provider_test extends provider_testcase {
+    /**
+     * Stores one activity row for a user.
+     *
+     * @param int $userid Moodle user id.
+     * @param string $id The id.
+     */
     private function add_event(int $userid, string $id): void {
         global $DB;
         $DB->insert_record('local_xentreeconnect_event', (object) [

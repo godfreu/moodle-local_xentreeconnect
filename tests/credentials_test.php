@@ -22,14 +22,20 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
+ * Tests for the credential lookup.
+ *
  * @package    local_xentreeconnect
  * @covers     \local_xentreeconnect\credentials
  */
 final class credentials_test extends \basic_testcase {
+    /**
+     * A file reader backed by an array of path => content.
+     *
+     * @param array $files File contents by path.
+     */
     private function reader(array $files): callable {
         return static fn(string $path): ?string => $files[$path] ?? null;
     }
@@ -44,8 +50,11 @@ final class credentials_test extends \basic_testcase {
     }
 
     public function test_file_wins_over_database_and_is_trimmed(): void {
-        $c = new credentials([], ['webhooksecret' => 'from-db', 'webhooksecretfile' => '/etc/x/secret'],
-            $this->reader(['/etc/x/secret' => "from-file\n"]));
+        $c = new credentials(
+            [],
+            ['webhooksecret' => 'from-db', 'webhooksecretfile' => '/etc/x/secret'],
+            $this->reader(['/etc/x/secret' => "from-file\n"])
+        );
         $this->assertSame(['value' => 'from-file', 'source' => 'file', 'problem' => null], $c->resolve('webhooksecret'));
     }
 
@@ -60,8 +69,11 @@ final class credentials_test extends \basic_testcase {
     }
 
     public function test_the_file_path_can_itself_be_forced_in_config_php(): void {
-        $c = new credentials(['privatekeyfile' => '/etc/forced.pem'], ['privatekeyfile' => '/etc/stored.pem'],
-            $this->reader(['/etc/forced.pem' => 'FORCED-PEM', '/etc/stored.pem' => 'STORED-PEM']));
+        $c = new credentials(
+            ['privatekeyfile' => '/etc/forced.pem'],
+            ['privatekeyfile' => '/etc/stored.pem'],
+            $this->reader(['/etc/forced.pem' => 'FORCED-PEM', '/etc/stored.pem' => 'STORED-PEM'])
+        );
         $this->assertSame('FORCED-PEM', $c->value('privatekeypem'));
     }
 
@@ -74,13 +86,21 @@ final class credentials_test extends \basic_testcase {
     }
 
     public function test_a_file_inside_the_web_root_is_refused(): void {
-        $c = new credentials([], ['webhooksecretfile' => '/var/www/moodle/public/secret.txt'],
-            $this->reader(['/var/www/moodle/public/secret.txt' => 'leaky']), '/var/www/moodle/public');
+        $c = new credentials(
+            [],
+            ['webhooksecretfile' => '/var/www/moodle/public/secret.txt'],
+            $this->reader(['/var/www/moodle/public/secret.txt' => 'leaky']),
+            '/var/www/moodle/public'
+        );
         $result = $c->resolve('webhooksecret');
         $this->assertSame(['', 'none', 'insidewebroot'], [$result['value'], $result['source'], $result['problem']]);
         // A sibling directory with the same prefix is not inside.
-        $outside = new credentials([], ['webhooksecretfile' => '/var/www/moodle/public-secrets/s'],
-            $this->reader(['/var/www/moodle/public-secrets/s' => 'ok']), '/var/www/moodle/public');
+        $outside = new credentials(
+            [],
+            ['webhooksecretfile' => '/var/www/moodle/public-secrets/s'],
+            $this->reader(['/var/www/moodle/public-secrets/s' => 'ok']),
+            '/var/www/moodle/public'
+        );
         $this->assertSame('file', $outside->resolve('webhooksecret')['source']);
     }
 

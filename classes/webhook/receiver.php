@@ -44,16 +44,32 @@ final class receiver {
     /** Allowed clock difference in seconds between Xentree's timestamp and ours. */
     public const TOLERANCE = 300;
 
+    /**
+     * Shape of the external subject of a Moodle user.
+     */
     public const SUBJECT_PATTERN = '/^moodle-user-([1-9][0-9]{0,9})$/D';
 
+    /**
+     * Shape of an event id.
+     */
     private const ID_PATTERN = '/^[A-Za-z0-9_-]{1,64}$/D';
+    /**
+     * Shape of a delivery id.
+     */
     private const DELIVERY_PATTERN = '/^[A-Za-z0-9_-]{8,64}$/D';
+    /**
+     * Shape of the ISO 8601 timestamps Xentree sends.
+     */
     private const TIME_PATTERN = '/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(\.\d{1,6})?(Z|[+-]\d{2}:\d{2})$/D';
+    /**
+     * Reasons a consent withdrawal can carry.
+     */
     private const REASONS = ['user', 'admin', 'deprovision'];
 
     /** Outcomes that count as "rejected" on the status page. */
     public const REJECTIONS = ['bad_signature', 'stale_timestamp', 'bad_payload', 'too_large'];
 
+    /** @var store Where accepted events are kept. */
     private store $store;
     /** @var string[] Secrets that may have signed the delivery (current first, previous during rotation). */
     private array $secrets;
@@ -63,6 +79,8 @@ final class receiver {
     private $logger;
 
     /**
+     * Creates the receiver.
+     *
      * @param store $store
      * @param string[] $secrets Non-empty secrets; accepting a signature from any of them supports rotation.
      * @param callable|null $clock Returns unix time.
@@ -78,6 +96,7 @@ final class receiver {
     /**
      * Lower-cased HTTP headers from a PHP $_SERVER array.
      *
+     * @param array $server The $_SERVER array.
      * @return array<string,string>
      */
     public static function headers_from_server(array $server): array {
@@ -110,11 +129,12 @@ final class receiver {
     }
 
     /**
+     * Authenticates and applies one delivery.
+     *
      * @param string $method HTTP method.
-     * @param array<string,string> $headers Lower-cased header names.
-     * @param callable $readbody fn(): ?string returning the body, null when it exceeds MAX_BODY. Called only after
-     *        the cheap checks, so an oversized or misdirected request is never read.
-     * @return array{status:int,body:array,headers:array} What to send back.
+     * @param array $headers Lower-cased header names to values.
+     * @param callable $readbody Returns the body, or null when it exceeds MAX_BODY; called only after the cheap checks.
+     * @return array What to send back: status, body and headers.
      */
     public function handle(string $method, array $headers, callable $readbody): array {
         if (strtoupper($method) !== 'POST') {
@@ -156,8 +176,10 @@ final class receiver {
         }
         $eventtype = $payload['event_type'] ?? null;
         $headertype = (string) ($headers['x-xentree-event'] ?? '');
-        if (!is_string($eventtype) || $eventtype === '' || strlen($eventtype) > 64 ||
-                ($headertype !== '' && $headertype !== $eventtype)) {
+        if (
+            !is_string($eventtype) || $eventtype === '' || strlen($eventtype) > 64 ||
+                ($headertype !== '' && $headertype !== $eventtype)
+        ) {
             return $this->reject(400, 'bad_payload', '', $deliveryid);
         }
         $schema = $payload['schema_version'] ?? null;
@@ -181,6 +203,14 @@ final class receiver {
         }
     }
 
+    /**
+     * Stores a completed learning session of a known member.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
+     */
     private function session_completed(array $payload, string $eventtype, string $deliveryid, int $now): array {
         $eventid = $payload['event_id'] ?? null;
         $subject = $payload['external_subject'] ?? null;
@@ -207,11 +237,23 @@ final class receiver {
         return $this->accept($stored ? 'accepted' : 'duplicate', $eventtype, $deliveryid, $now);
     }
 
+    /**
+     * Deletes a member's stored activity after they withdrew consent.
+     *
+     * @param array $payload Decoded JSON payload.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
+     */
     private function consent_revoked(array $payload, string $eventtype, string $deliveryid, int $now): array {
         $subject = $payload['external_subject'] ?? null;
         $reason = $payload['reason'] ?? null;
-        if (!is_string($subject) || !is_string($payload['event_id'] ?? null) || $this->timestamp($payload['occurred_at'] ?? null) === null
-                || !in_array($reason, self::REASONS, true)) {
+        if (
+            !is_string($subject) ||
+                !is_string($payload['event_id'] ?? null) ||
+                $this->timestamp($payload['occurred_at'] ?? null) === null ||
+                !in_array($reason, self::REASONS, true)
+        ) {
             return $this->reject(400, 'bad_payload', $eventtype, $deliveryid);
         }
         $userid = self::user_from_subject($subject);
@@ -224,6 +266,9 @@ final class receiver {
     }
 
     /**
+     * Maps an external subject to a Moodle user id.
+     *
+     * @param string $subject External subject.
      * @return int|null The Moodle user id of "moodle-user-<id>", or null for any other shape.
      */
     public static function user_from_subject(string $subject): ?int {
@@ -233,6 +278,11 @@ final class receiver {
         return (int) $m[1];
     }
 
+    /**
+     * Parses an ISO 8601 timestamp.
+     *
+     * @param mixed $value The value.
+     */
     private function timestamp($value): ?int {
         if (!is_string($value) || preg_match(self::TIME_PATTERN, $value) !== 1) {
             return null;
@@ -245,6 +295,9 @@ final class receiver {
     }
 
     /**
+     * Splits the signature header into its timestamp and candidate signatures.
+     *
+     * @param string $header Signature header value.
      * @return array{t:int,v1:string[]}|null
      */
     private function parse_signature(string $header): ?array {
@@ -267,6 +320,12 @@ final class receiver {
         return ($t === null || $candidates === []) ? null : ['t' => $t, 'v1' => $candidates];
     }
 
+    /**
+     * Whether any configured secret produces one of the candidate signatures.
+     *
+     * @param array $signature Parsed signature header.
+     * @param string $body Raw request body.
+     */
     private function signature_matches(array $signature, string $body): bool {
         $matched = false;
         foreach ($this->secrets as $secret) {
@@ -279,6 +338,14 @@ final class receiver {
         return $matched;
     }
 
+    /**
+     * Counts the outcome and answers 2xx, so Xentree does not retry.
+     *
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     * @param int $now Current unix time.
+     */
     private function accept(string $outcome, string $eventtype, string $deliveryid, int $now): array {
         $this->store->count_outcome($outcome, $now);
         if (!in_array($outcome, ['accepted', 'revoked', 'ping'], true)) {
@@ -287,24 +354,50 @@ final class receiver {
         return $this->reply(200, $outcome === 'duplicate' ? 'duplicate' : 'ok');
     }
 
+    /**
+     * Counts the outcome and answers with an error status.
+     *
+     * @param int $status HTTP status.
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     */
     private function reject(int $status, string $outcome, string $eventtype, string $deliveryid): array {
         $this->store->count_outcome($outcome, (int) ($this->clock)());
         $this->log($outcome, $eventtype, $deliveryid);
         return $this->reply($status, $outcome);
     }
 
+    /**
+     * Builds the response: a status and a short machine code.
+     *
+     * @param int $status HTTP status.
+     * @param string $code Machine code.
+     * @param array $headers Lower-cased HTTP headers.
+     */
     private function reply(int $status, string $code, array $headers = []): array {
         // Short machine codes only: nothing about the secret, the payload or the site.
         return ['status' => $status, 'body' => $status < 300 ? ['status' => $code] : ['error' => $code], 'headers' => $headers];
     }
 
+    /**
+     * Passes an outcome to the logger, if there is one.
+     *
+     * @param string $outcome Outcome code.
+     * @param string $eventtype Event type.
+     * @param string $deliveryid Delivery id.
+     */
     private function log(string $outcome, string $eventtype, string $deliveryid): void {
         if ($this->logger !== null) {
             ($this->logger)($outcome, $this->clean($eventtype), $this->clean($deliveryid));
         }
     }
 
-    /** Ids and event names only, whatever the sender put in them. */
+    /**
+     * Reduces a value to characters that are safe to log.
+     *
+     * @param string $value The value.
+     */
     private function clean(string $value): string {
         return substr(preg_replace('/[^A-Za-z0-9._-]/', '', $value), 0, 64);
     }

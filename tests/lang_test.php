@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
@@ -32,13 +31,18 @@ namespace local_xentreeconnect;
  * @coversNothing
  */
 final class lang_test extends \basic_testcase {
+    /**
+     * Loads the strings of one language.
+     *
+     * @param string $lang Language code.
+     */
     private function strings(string $lang): array {
         $string = [];
         $file = dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php";
         if (!defined('MOODLE_INTERNAL')) {
             define('MOODLE_INTERNAL', true);
         }
-        require $file;
+        require($file);
         return $string;
     }
 
@@ -62,7 +66,12 @@ final class lang_test extends \basic_testcase {
     public function test_every_literal_string_key_used_in_code_is_defined(): void {
         $en = $this->strings('en');
         $root = dirname(__DIR__);
-        $files = array_merge(glob("$root/*.php"), glob("$root/classes/*.php"), glob("$root/classes/output/*.php"), glob("$root/classes/privacy/*.php"));
+        $files = array_merge(
+            glob("$root/*.php"),
+            glob("$root/classes/*.php"),
+            glob("$root/classes/output/*.php"),
+            glob("$root/classes/privacy/*.php")
+        );
         $missing = [];
         foreach ($files as $file) {
             preg_match_all("/get_string\(\s*'([a-z0-9_]+)'\s*,\s*'local_xentreeconnect'/", file_get_contents($file), $matches);

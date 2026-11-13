@@ -22,21 +22,37 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/standalone/memory_store.php');
 
 use local_xentreeconnect\tests\memory_store;
 
 /**
+ * Tests for the data of the status page.
+ *
  * @package    local_xentreeconnect
  * @covers     \local_xentreeconnect\status_report
  */
 final class status_report_test extends \basic_testcase {
+    /**
+     * Fixed current time.
+     */
     private const NOW = 1790000000;
+    /**
+     * Receiver URL shown on the page.
+     */
     private const URL = 'https://moodle.example.org/local/xentreeconnect/webhook.php';
 
+    /**
+     * Builds a report from a credentials resolver and a store.
+     *
+     * @param credentials $credentials Credentials resolver.
+     * @param memory_store|null $store The store.
+     * @param int $days Retention in days.
+     */
     private function build(credentials $credentials, ?memory_store $store = null, int $days = 365): array {
         return status_report::build($credentials, $store ?? new memory_store(), self::URL, $days, self::NOW);
     }
@@ -76,8 +92,26 @@ final class status_report_test extends \basic_testcase {
         $store->count_outcome('stale_timestamp', self::NOW - 300);
         $store->count_outcome('accepted', self::NOW - 400);
         $store->count_outcome('bad_signature', self::NOW - 3 * DAYSECS);
-        $store->insert_event(['deliveryid' => 'a', 'eventid' => 'a', 'eventtype' => 't', 'userid' => 7, 'occurredat' => 1, 'receivedat' => self::NOW - 50, 'sessionseconds' => 1, 'sessionstatus' => 'x']);
-        $store->insert_event(['deliveryid' => 'b', 'eventid' => 'b', 'eventtype' => 't', 'userid' => 7, 'occurredat' => 1, 'receivedat' => self::NOW - 2 * DAYSECS, 'sessionseconds' => 1, 'sessionstatus' => 'x']);
+        $store->insert_event([
+            'deliveryid' => 'a',
+            'eventid' => 'a',
+            'eventtype' => 't',
+            'userid' => 7,
+            'occurredat' => 1,
+            'receivedat' => self::NOW - 50,
+            'sessionseconds' => 1,
+            'sessionstatus' => 'x',
+        ]);
+        $store->insert_event([
+            'deliveryid' => 'b',
+            'eventid' => 'b',
+            'eventtype' => 't',
+            'userid' => 7,
+            'occurredat' => 1,
+            'receivedat' => self::NOW - 2 * DAYSECS,
+            'sessionseconds' => 1,
+            'sessionstatus' => 'x',
+        ]);
 
         $report = $this->build(new credentials(['privatekeypem' => 'PEM', 'webhooksecret' => 's'], []), $store);
         $this->assertSame(3, $report['rejected24h']);
@@ -99,7 +133,7 @@ final class status_report_test extends \basic_testcase {
     public function test_every_string_the_page_derives_from_a_report_exists_in_both_languages(): void {
         foreach (['en', 'id'] as $lang) {
             $string = [];
-            require dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php";
+            require(dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php");
             foreach ([credentials::FROM_CONFIG, credentials::FROM_FILE, credentials::FROM_DATABASE, credentials::NONE] as $source) {
                 $this->assertArrayHasKey('source_' . preg_replace('/[^a-z]/', '', $source), $string, "$lang source $source");
             }

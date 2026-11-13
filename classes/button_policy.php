@@ -32,17 +32,32 @@ namespace local_xentreeconnect;
  * @package    local_xentreeconnect
  */
 final class button_policy {
+    /**
+     * Show the working button.
+     */
     public const BUTTON = 'button';
+    /**
+     * Show the not-configured notice to a site admin.
+     */
     public const ADMIN_NOTICE = 'admin_notice';
+    /**
+     * Show nothing.
+     */
     public const HIDDEN = 'hidden';
 
     /** Pages the admin can enable the button on. */
     public const PLACEMENTS = ['dashboard', 'course', 'login'];
 
+    /**
+     * Longest button text that is used, in characters.
+     */
     public const MAX_LABEL_LENGTH = 80;
 
     /**
      * Regular users only ever see a working button; an incomplete configuration is reported to site admins only.
+     *
+     * @param bool $configured Whether the plugin is configured.
+     * @param bool $isadmin Whether the user is a site admin.
      */
     public static function decide(bool $configured, bool $isadmin): string {
         if ($configured) {
@@ -53,6 +68,8 @@ final class button_policy {
 
     /**
      * Maps a Moodle page type to one of {@see self::PLACEMENTS}, or null for pages that never show the button.
+     *
+     * @param string $pagetype Moodle page type.
      */
     public static function placement_for_pagetype(string $pagetype): ?string {
         if ($pagetype === 'my-index') {
@@ -81,6 +98,12 @@ final class button_policy {
         return array_values(array_intersect(self::PLACEMENTS, $enabled));
     }
 
+    /**
+     * Whether the button is enabled on the page type.
+     *
+     * @param string $pagetype Moodle page type.
+     * @param array $enabled Enabled placements.
+     */
     public static function should_render(string $pagetype, array $enabled): bool {
         $placement = self::placement_for_pagetype($pagetype);
         return $placement !== null && in_array($placement, $enabled, true);
@@ -88,12 +111,18 @@ final class button_policy {
 
     /**
      * Admin-defined button text, falling back to the language string default when empty.
+     *
+     * @param mixed $custom Admin-defined text.
+     * @param string $default Default text.
      */
     public static function label($custom, string $default): string {
         $custom = is_string($custom) ? trim($custom) : '';
         if ($custom === '') {
             return $default;
         }
-        return function_exists('mb_substr') ? mb_substr($custom, 0, self::MAX_LABEL_LENGTH) : substr($custom, 0, self::MAX_LABEL_LENGTH);
+        if (function_exists('mb_substr')) {
+            return mb_substr($custom, 0, self::MAX_LABEL_LENGTH);
+        }
+        return substr($custom, 0, self::MAX_LABEL_LENGTH);
     }
 }

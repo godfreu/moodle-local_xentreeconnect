@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect\privacy;
 
 use core_privacy\local\metadata\collection;
@@ -32,8 +31,6 @@ use core_privacy\local\request\contextlist;
 use core_privacy\local\request\transform;
 use core_privacy\local\request\userlist;
 use core_privacy\local\request\writer;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Privacy API implementation for local_xentreeconnect.
@@ -47,9 +44,8 @@ defined('MOODLE_INTERNAL') || die();
  */
 class provider implements
     \core_privacy\local\metadata\provider,
-    \core_privacy\local\request\plugin\provider,
-    \core_privacy\local\request\core_userlist_provider {
-
+    \core_privacy\local\request\core_userlist_provider,
+    \core_privacy\local\request\plugin\provider {
     /** The table holding activity received from Xentree. */
     private const TABLE = 'local_xentreeconnect_event';
 
@@ -61,6 +57,8 @@ class provider implements
      */
     public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(self::TABLE, [
+            'deliveryid' => 'privacy:metadata:event:deliveryid',
+            'eventid' => 'privacy:metadata:event:eventid',
             'userid' => 'privacy:metadata:event:userid',
             'eventtype' => 'privacy:metadata:event:eventtype',
             'occurredat' => 'privacy:metadata:event:occurredat',

@@ -1,0 +1,134 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_xentreeconnect/status_page
+
+    Admin status page: configuration problems, the values to register in Xentree, the public JWKS and the report of
+    the webhook receiver. Never contains a private key or a secret value.
+
+    Context variables required for this template:
+    * ready, hasproblems, hasjwks, haswarnings - bool
+    * statusready, statusincomplete, opensettings, testlaunch - Texts
+    * settingsurl, testlaunchurl, receiverurl, deleteurl - URLs
+    * problems - List of label, reason
+    * registration - List of label, value
+    * jwks, jwkserror - JWKS JSON, or the reason it is unavailable
+    * warnings, credentials - Lists of text
+    * counters - List of label, value
+    * deleteheading, deletedesc, retention and the other headings and help texts - Texts
+
+    Example context (json):
+    {
+        "ready": false,
+        "hasproblems": true,
+        "statusready": "Ready to connect.",
+        "statusincomplete": "Not ready yet:",
+        "problems": [{"label": "Client ID", "reason": "missing"}],
+        "settingsurl": "https://moodle.example.com/admin/settings.php?section=local_xentreeconnect",
+        "opensettings": "Open settings",
+        "testlaunchurl": "https://moodle.example.com/local/xentreeconnect/launch.php",
+        "testlaunch": "Test launch",
+        "registerheading": "Register in Xentree",
+        "registerintro": "Use these values.",
+        "registration": [{"label": "Client ID", "value": "example-client"}],
+        "publicjwks": "Public JWKS",
+        "hasjwks": true,
+        "jwks": "{ \"keys\": [] }",
+        "jwkserror": "",
+        "receivingheading": "Receiving activity",
+        "haswarnings": true,
+        "warnings": [{"text": "Retention is off."}],
+        "receiverurllabel": "Webhook URL",
+        "receiverurl": "https://moodle.example.com/local/xentreeconnect/webhook.php",
+        "receiverurlhelp": "Register this URL in Xentree.",
+        "credentialheading": "Credentials",
+        "credentials": [{"text": "Private key: set (database)"}],
+        "last24hheading": "Last 24 hours",
+        "counters": [{"label": "Events stored", "value": "0"}],
+        "retention": "Activity is kept for 365 days.",
+        "deleteheading": "Delete all Xentree data",
+        "deletedesc": "Removes every stored row.",
+        "deleteurl": "https://moodle.example.com/local/xentreeconnect/index.php?deleteall=1"
+    }
+}}
+<div class="local-xentreeconnect-status" data-region="local-xentreeconnect-status">
+    {{#hasproblems}}
+        <div class="alert alert-warning" role="alert">
+            {{statusincomplete}}
+            <ul class="mb-0">
+                {{#problems}}
+                    <li>{{label}} — {{reason}}</li>
+                {{/problems}}
+            </ul>
+        </div>
+    {{/hasproblems}}
+    {{^hasproblems}}
+        <div class="alert alert-success" role="alert">{{statusready}}</div>
+    {{/hasproblems}}
+    <div class="mb-4">
+        <a class="btn btn-secondary mr-2" href="{{settingsurl}}">{{opensettings}}</a>
+        {{#ready}}
+            <a class="btn btn-primary" href="{{testlaunchurl}}">{{testlaunch}}</a>
+        {{/ready}}
+    </div>
+
+    <h3>{{registerheading}}</h3>
+    <p>{{registerintro}}</p>
+    <table class="table table-sm generaltable">
+        <tbody>
+            {{#registration}}
+                <tr><td>{{label}}</td><td>{{value}}</td></tr>
+            {{/registration}}
+        </tbody>
+    </table>
+
+    <h4>{{publicjwks}}</h4>
+    {{#hasjwks}}
+        <pre class="border p-3 bg-light">{{jwks}}</pre>
+    {{/hasjwks}}
+    {{^hasjwks}}
+        <div class="alert alert-info" role="alert">{{jwkserror}}</div>
+    {{/hasjwks}}
+
+    <h3>{{receivingheading}}</h3>
+    {{#warnings}}
+        <div class="alert alert-warning" role="alert">{{text}}</div>
+    {{/warnings}}
+    <p><strong>{{receiverurllabel}}</strong>: <code>{{receiverurl}}</code></p>
+    <p class="text-muted">{{receiverurlhelp}}</p>
+
+    <h4>{{credentialheading}}</h4>
+    <ul>
+        {{#credentials}}
+            <li>{{text}}</li>
+        {{/credentials}}
+    </ul>
+
+    <h4>{{last24hheading}}</h4>
+    <table class="table table-sm generaltable">
+        <tbody>
+            {{#counters}}
+                <tr><td>{{label}}</td><td>{{value}}</td></tr>
+            {{/counters}}
+        </tbody>
+    </table>
+    <p>{{retention}}</p>
+
+    <h4>{{deleteheading}}</h4>
+    <p>{{deletedesc}}</p>
+    <a class="btn btn-danger" href="{{deleteurl}}">{{deleteheading}}</a>
+</div>

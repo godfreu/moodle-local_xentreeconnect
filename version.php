@@ -22,11 +22,10 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 $plugin->component = 'local_xentreeconnect';
-$plugin->version = 2026102800;
+$plugin->version = 2026111300;
 $plugin->requires = 2024042200; // Moodle 4.4: the output hooks used for button placement arrive in 4.4.
 $plugin->maturity = MATURITY_BETA;
-$plugin->release = '0.2.1';
+$plugin->release = '0.2.2';
