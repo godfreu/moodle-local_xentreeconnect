@@ -195,7 +195,7 @@ final class launcher_test extends \basic_testcase {
     }
 
     public function test_error_messages_never_contain_the_key(): void {
-        $pem = "-----BEGIN PRIVATE KEY-----\nsecretmaterial\n-----END PRIVATE KEY-----\n";
+        $pem = 'secretmaterial-not-a-pem';
         $message = $this->message_of(fn() => $this->launcher(['privatekeypem' => $pem])->build_assertion('moodle-user-7'));
         $this->assertStringNotContainsString('secretmaterial', $message);
     }
