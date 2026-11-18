@@ -135,7 +135,7 @@ final class launcher {
     public function launch_url(): string {
         $problems = $this->problems();
         if (isset($problems['baseurl']) || isset($problems['clientid'])) {
-            throw new \RuntimeException('Xentree base URL and client ID must be configured.');
+            throw new \RuntimeException(get_string('launcherr_basicsmissing', 'local_xentreeconnect'));
         }
         return rtrim($this->config['baseurl'], '/') . '/connect/v1/launch/' . rawurlencode($this->config['clientid']);
     }
@@ -150,7 +150,11 @@ final class launcher {
     public function build_assertion(string $subject, ?string $email = null): string {
         $problems = $this->problems();
         if ($problems !== []) {
-            throw new \RuntimeException('Xentree Connect is not configured: ' . implode(', ', array_keys($problems)));
+            throw new \RuntimeException(get_string(
+                'launcherr_notconfigured',
+                'local_xentreeconnect',
+                implode(', ', array_keys($problems))
+            ));
         }
 
         $key = $this->private_key();
@@ -175,7 +179,7 @@ final class launcher {
             self::base64url(json_encode($payload, JSON_UNESCAPED_SLASHES));
         $signature = '';
         if (!openssl_sign($signinginput, $signature, $key, OPENSSL_ALGO_SHA256)) {
-            throw new \RuntimeException('Unable to sign the launch assertion.');
+            throw new \RuntimeException(get_string('launcherr_signfailed', 'local_xentreeconnect'));
         }
         return $signinginput . '.' . self::base64url($signature);
     }
@@ -187,11 +191,11 @@ final class launcher {
      */
     public function public_jwks(): array {
         if ($this->config['kid'] === '') {
-            throw new \RuntimeException('Key ID is not configured.');
+            throw new \RuntimeException(get_string('launcherr_kidmissing', 'local_xentreeconnect'));
         }
         $details = openssl_pkey_get_details($this->private_key());
         if ($details === false || ($details['type'] ?? null) !== OPENSSL_KEYTYPE_RSA) {
-            throw new \RuntimeException('Only RSA keys are supported.');
+            throw new \RuntimeException(get_string('launcherr_notrsa', 'local_xentreeconnect'));
         }
         return ['keys' => [[
             'kty' => 'RSA',
@@ -211,11 +215,11 @@ final class launcher {
      */
     private function private_key() {
         if ($this->config['privatekeypem'] === '') {
-            throw new \RuntimeException('Private key is not configured.');
+            throw new \RuntimeException(get_string('launcherr_keymissing', 'local_xentreeconnect'));
         }
         $key = openssl_pkey_get_private($this->config['privatekeypem']);
         if ($key === false) {
-            throw new \RuntimeException('Private key is invalid or unreadable.');
+            throw new \RuntimeException(get_string('launcherr_keyinvalid', 'local_xentreeconnect'));
         }
         return $key;
     }

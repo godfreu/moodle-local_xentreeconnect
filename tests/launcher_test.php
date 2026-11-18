@@ -160,6 +160,46 @@ final class launcher_test extends \basic_testcase {
         $launcher->build_assertion('moodle-user-7');
     }
 
+    /**
+     * Runs a callable that must throw and returns the exception message.
+     *
+     * @param callable $call Code expected to throw a RuntimeException.
+     */
+    private function message_of(callable $call): string {
+        try {
+            $call();
+        } catch (\RuntimeException $e) {
+            return $e->getMessage();
+        }
+        $this->fail('RuntimeException expected');
+    }
+
+    public function test_error_messages_come_from_language_strings(): void {
+        $component = 'local_xentreeconnect';
+        $this->assertSame(
+            get_string('launcherr_basicsmissing', $component),
+            $this->message_of(fn() => $this->launcher(['baseurl' => 'http://my.xentree.ai'])->launch_url())
+        );
+        $this->assertSame(
+            get_string('launcherr_notconfigured', $component, 'kid'),
+            $this->message_of(fn() => $this->launcher(['kid' => ''])->build_assertion('moodle-user-7'))
+        );
+        $this->assertSame(
+            get_string('launcherr_keymissing', $component),
+            $this->message_of(fn() => $this->launcher(['privatekeypem' => ''])->public_jwks())
+        );
+        $this->assertSame(
+            get_string('launcherr_keyinvalid', $component),
+            $this->message_of(fn() => $this->launcher(['privatekeypem' => 'not a key'])->public_jwks())
+        );
+    }
+
+    public function test_error_messages_never_contain_the_key(): void {
+        $pem = "-----BEGIN PRIVATE KEY-----\nsecretmaterial\n-----END PRIVATE KEY-----\n";
+        $message = $this->message_of(fn() => $this->launcher(['privatekeypem' => $pem])->build_assertion('moodle-user-7'));
+        $this->assertStringNotContainsString('secretmaterial', $message);
+    }
+
     public function test_https_url_validation(): void {
         $valid = ['https://my.xentree.ai', 'https://my.xentree.ai/', 'HTTPS://learn.example.com', 'https://x.example:8443/base'];
         foreach ($valid as $url) {
