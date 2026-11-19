@@ -1,0 +1,45 @@
+{{!
+    This file is part of Moodle - http://moodle.org/
+
+    Moodle is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Moodle is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
+}}
+{{!
+    @template local_xentreeconnect/launch_form
+
+    Form that posts the signed launch assertion to Xentree. The local_xentreeconnect/launch AMD module submits it
+    automatically; without JavaScript the button submits it.
+
+    Context variables required for this template:
+    * formid - Id of the form element
+    * action - Xentree launch URL
+    * assertion - Signed launch assertion (JWT)
+    * redirecting - Text shown while redirecting
+    * continuelabel - Submit button label
+
+    Example context (json):
+    {
+        "formid": "xentreeconnect-launch-form",
+        "action": "https://my.xentree.ai/connect/v1/launch/example-client",
+        "assertion": "header.payload.signature",
+        "redirecting": "Taking you to Xentree…",
+        "continuelabel": "Continue to Xentree"
+    }
+}}
+<div class="local-xentreeconnect-launch my-3" data-region="local-xentreeconnect-launch">
+    <p>{{redirecting}}</p>
+    <form id="{{formid}}" method="post" action="{{action}}">
+        <input type="hidden" name="assertion" value="{{assertion}}">
+        <button type="submit" class="btn btn-primary">{{continuelabel}}</button>
+    </form>
+</div>

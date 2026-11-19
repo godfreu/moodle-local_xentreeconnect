@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
@@ -32,17 +31,26 @@ namespace local_xentreeconnect;
  * @covers     \local_xentreeconnect\launcher
  */
 final class launcher_test extends \basic_testcase {
+    /**
+     * Fixed current time.
+     */
     private const NOW = 1790000000;
 
     /** @var string PEM of a throwaway RSA key created for the test run. */
     private static string $pem;
 
     public static function setUpBeforeClass(): void {
+        parent::setUpBeforeClass();
         $key = openssl_pkey_new(['private_key_type' => OPENSSL_KEYTYPE_RSA, 'private_key_bits' => 2048]);
         openssl_pkey_export($key, $pem);
         self::$pem = $pem;
     }
 
+    /**
+     * A complete configuration with optional overrides.
+     *
+     * @param array $overrides Values that override the defaults.
+     */
     private function config(array $overrides = []): array {
         return $overrides + [
             'baseurl' => 'https://my.xentree.ai',
@@ -55,10 +63,20 @@ final class launcher_test extends \basic_testcase {
         ];
     }
 
+    /**
+     * Builds a launcher with a fixed clock.
+     *
+     * @param array $overrides Values that override the defaults.
+     */
     private function launcher(array $overrides = []): launcher {
         return new launcher($this->config($overrides), fn() => self::NOW);
     }
 
+    /**
+     * Decodes one base64url part of a JWT.
+     *
+     * @param string $segment The segment.
+     */
     private function decode(string $segment): array {
         $json = base64_decode(strtr($segment, '-_', '+/'));
         return json_decode($json, true, 512, JSON_THROW_ON_ERROR);
@@ -140,6 +158,46 @@ final class launcher_test extends \basic_testcase {
         $launcher = $this->launcher(['privatekeypem' => "-----BEGIN PRIVATE KEY-----\n\n-----END PRIVATE KEY-----\n"]);
         $this->expectException(\RuntimeException::class);
         $launcher->build_assertion('moodle-user-7');
+    }
+
+    /**
+     * Runs a callable that must throw and returns the exception message.
+     *
+     * @param callable $call Code expected to throw a RuntimeException.
+     */
+    private function message_of(callable $call): string {
+        try {
+            $call();
+        } catch (\RuntimeException $e) {
+            return $e->getMessage();
+        }
+        $this->fail('RuntimeException expected');
+    }
+
+    public function test_error_messages_come_from_language_strings(): void {
+        $component = 'local_xentreeconnect';
+        $this->assertSame(
+            get_string('launcherr_basicsmissing', $component),
+            $this->message_of(fn() => $this->launcher(['baseurl' => 'http://my.xentree.ai'])->launch_url())
+        );
+        $this->assertSame(
+            get_string('launcherr_notconfigured', $component, 'kid'),
+            $this->message_of(fn() => $this->launcher(['kid' => ''])->build_assertion('moodle-user-7'))
+        );
+        $this->assertSame(
+            get_string('launcherr_keymissing', $component),
+            $this->message_of(fn() => $this->launcher(['privatekeypem' => ''])->public_jwks())
+        );
+        $this->assertSame(
+            get_string('launcherr_keyinvalid', $component),
+            $this->message_of(fn() => $this->launcher(['privatekeypem' => 'not a key'])->public_jwks())
+        );
+    }
+
+    public function test_error_messages_never_contain_the_key(): void {
+        $pem = 'secretmaterial-not-a-pem';
+        $message = $this->message_of(fn() => $this->launcher(['privatekeypem' => $pem])->build_assertion('moodle-user-7'));
+        $this->assertStringNotContainsString('secretmaterial', $message);
     }
 
     public function test_https_url_validation(): void {

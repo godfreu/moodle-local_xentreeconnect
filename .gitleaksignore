@@ -1,0 +1,2 @@
+# False positive: a made-up JWT-shaped example (signature part is the literal word 'signature') in a template docblock.
+b352a62f49692da92cea7c17088299ccdbd9a830:templates/launch_form.mustache:jwt:34
