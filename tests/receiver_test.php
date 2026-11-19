@@ -190,6 +190,55 @@ final class receiver_test extends \basic_testcase {
         $this->assertNull($row['sessionstatus']);
     }
 
+    public function test_optional_fields_sent_by_xentree_are_accepted_but_not_stored(): void {
+        // The shape Xentree sends today, with every optional field filled in (synthetic values).
+        $response = $this->send($this->session([
+            'session_title' => 'Example session title', 'session_key' => str_repeat('a1', 16), 'total_duration_seconds' => 1260,
+            'level' => 3, 'total_xp' => 420, 'streak_days' => 4,
+        ]));
+        $this->assert_reply(200, $response, 'ok');
+        $this->assertCount(1, $this->store->events);
+        $row = array_values($this->store->events)[0];
+        $this->assertSame(
+            ['deliveryid', 'eventid', 'eventtype', 'userid', 'occurredat', 'receivedat', 'sessionseconds', 'sessionstatus'],
+            array_keys($row)
+        );
+        $this->assertSame(1260, $row['sessionseconds']);
+        $this->assertSame('completed', $row['sessionstatus']);
+        $dump = json_encode($this->store->events);
+        foreach (['Example session title', str_repeat('a1', 16), '420'] as $needle) {
+            $this->assertStringNotContainsString($needle, $dump);
+        }
+        $this->assertSame([], $this->logged);
+    }
+
+    public function test_a_session_without_any_optional_field_is_accepted(): void {
+        $minimal = $this->session();
+        unset($minimal['session_duration_seconds'], $minimal['session_status']);
+        $this->assert_reply(200, $this->send($minimal), 'ok');
+        $row = array_values($this->store->events)[0];
+        $this->assertNull($row['sessionseconds']);
+        $this->assertNull($row['sessionstatus']);
+
+        $nulls = $this->session([
+            'event_id' => 'evt-0002', 'session_duration_seconds' => null, 'session_status' => null, 'session_title' => null,
+            'session_key' => null, 'total_duration_seconds' => null, 'level' => null, 'total_xp' => null, 'streak_days' => null,
+        ]);
+        $this->assert_reply(200, $this->send($nulls, ['delivery' => 'delivery-0002']), 'ok');
+        $this->assertCount(2, $this->store->events);
+    }
+
+    public function test_a_test_ping_without_an_external_subject_is_accepted_and_stores_nothing(): void {
+        $ping = [
+            'schema_version' => 1, 'event_id' => 'evt-ping1', 'event_type' => 'webhook.test.ping',
+            'occurred_at' => '2026-10-14T10:00:00Z', 'message' => 'Test event from Xentree',
+        ];
+        $this->assert_reply(200, $this->send($ping), 'ok');
+        $this->assertSame([], $this->store->events);
+        $this->assertSame(1, $this->store->counted('ping'));
+        $this->assertSame([], $this->logged);
+    }
+
     // Idempotency.
     public function test_redelivery_with_the_same_delivery_id_is_acknowledged_without_a_second_row(): void {
         $this->send($this->session());
