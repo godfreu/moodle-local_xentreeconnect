@@ -54,11 +54,16 @@ The ticket contains: the **Xentree base URL**, **Client ID**, **Issuer**, **Audi
 
 ## 3. Learning-activity events
 
-Xentree sends `erpi.session.completed` when a member finishes a learning session, only for members who accepted
-the consent text version 2 or later, and `connect.consent.revoked` when a member withdraws.
+Xentree sends `erpi.session.completed` when a member finishes a learning session, only for members who have agreed
+to share their activity in the current Xentree consent (other members are skipped, and so is a session shorter than
+about one minute), and `connect.consent.revoked` when a member withdraws.
 [VERIFIKASI PRODUCTION: status ketersediaan event ini di production]
 
 The webhook's event list in Xentree offers only these two events. A test delivery (`webhook.test.ping`) is sent with the **Send Test Ping** button of the webhook in Xentree; it is not part of the event list, and the status page counts it as `ping`.
+
+On this side, the status page counters (last 24 hours) are what shows whether a delivery arrived. An event that Xentree
+decides not to send (for example for a member who has not agreed to share activity) never reaches this site, so nothing
+is counted for it.
 
 **3a. Through Xentree.** [ISI: langkah menyelesaikan satu sesi belajar di Xentree dengan akun reviewer, dan di mana
 mendaftarkan/menguji webhook ke URL situs reviewer]. Then open the status page: the counters for the last 24 hours show

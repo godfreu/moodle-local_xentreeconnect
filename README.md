@@ -28,9 +28,9 @@ what is missing, and no data leaves your site.
 **Learning-activity events.** Xentree can send a `erpi.session.completed` event to this site when a member finishes a
 learning session. [VERIFIKASI PRODUCTION: tersedia di production hanya bila sudah terbukti ter-deploy] It is sent only
 when all of these are true: the organisation has the Connect entitlement, the session started from a Connect launch from
-this site, a webhook with that event type is registered, and the member agreed to share activity by accepting the
-consent text version 2 or later. Members who agreed earlier are asked again at their next launch and nothing is sent for
-them until then. Withdrawal notices (`connect.consent.revoked`) are sent regardless.
+this site, a webhook with that event type is registered, and the member has agreed to share their activity in the
+current Xentree consent. Other members are skipped, and a session shorter than about one minute is not sent.
+Withdrawal notices (`connect.consent.revoked`) are sent regardless.
 
 ## What an admin has to do
 
@@ -129,7 +129,8 @@ retention period (default 365 days, **an interim value**; `0` keeps it until you
 about that). **Delete all Xentree data** on the status page removes everything, for example when the integration is
 switched off and withdrawal notices will no longer arrive.
 
-Xentree sends `erpi.session.completed` only for members who accepted the consent text version 2 or later (see
+Xentree sends `erpi.session.completed` only for members who have agreed to share their activity in the current Xentree
+consent, and not for sessions shorter than about one minute (see
 [External service requirements](#external-service-requirements)). Withdrawal notices are sent regardless.
 
 ## Tests
@@ -171,7 +172,7 @@ This plugin is a beta. Before using it with real learners:
   launches fail with HTTP 401. Use a new `kid` for each key.
 - **Decide the retention period** with your data-protection adviser; 365 days is an interim default.
 - **Review the consent wording** shown by Xentree with your data-protection adviser. Activity data flows to Moodle only
-  after members accept consent text version 2 or later.
+  for members who have agreed to share their activity in the current Xentree consent.
 - Set a real policy link (`policy_url`) on the integration in Xentree; the consent screen otherwise says none was given.
 
 ## Data exchanged with Xentree
@@ -203,6 +204,11 @@ Nothing else is sent by the plugin. (The user's browser then talks to Xentree di
 Stored from `erpi.session.completed` only: delivery id, event id, event type, Moodle user, when it happened, when it was
 received, duration and status. Unknown events, unknown users and newer schema versions are acknowledged, counted and
 not stored.
+
+Xentree may include additional optional fields in the event (for example a session title, a session key and learning
+statistics, depending on the member's consent). This plugin ignores them and does not store them: it reads only the
+fields listed above, and the stored row has exactly the columns listed above. A session event without the optional
+fields, and a test ping without `external_subject`, are accepted as well.
 
 ## Privacy
 
