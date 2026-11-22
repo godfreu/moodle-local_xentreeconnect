@@ -25,13 +25,11 @@ What the plugin sends to Xentree and receives from it is listed under [Data exch
 Without a Xentree organisation, the plugin can be installed but the button stays hidden for users, the status page lists
 what is missing, and no data leaves your site.
 
-**Learning-activity events.** The plugin can receive and store an `erpi.session.completed` event when a member
-finishes a learning session, but Xentree does not send it to this site yet. Until it does, no session events arrive and
-the receiver only shows test pings and consent withdrawals (`connect.consent.revoked`, which are sent regardless). When
-Xentree starts sending it, it will be sent only when all of these are true: the organisation has the Connect
-entitlement, the session started from a Connect launch from this site, a webhook with that event type is registered, and
-the member has agreed to share their activity in the current Xentree consent. Other members are skipped, and a session
-shorter than about one minute is not sent.
+**Learning-activity events.** The plugin receives and stores an `erpi.session.completed` event when Xentree sends it
+for a finished learning session. Xentree sends it only for members who have agreed to share their activity in the
+current Xentree consent, for sessions of about one minute or longer, and only to a webhook that subscribes to that event;
+the organisation needs the Connect entitlement and the session must have started from a Connect launch from this site.
+Other members are skipped. Withdrawal notices (`connect.consent.revoked`) are sent regardless.
 
 ## What an admin has to do
 
@@ -80,7 +78,8 @@ https://<your-moodle>/local/xentreeconnect/launch.php
 ```
 
 `launch.php` signs the assertion for the logged-in user and sends the browser to Xentree with a form POST.
-Logged-out visitors are asked to log in to Moodle first. A custom menu item works too: clear the boxes above and add
+Logged-out visitors are asked to log in to Moodle first. Linking straight to a specific piece of Xentree material is not
+supported yet; it is discussed in https://github.com/godfreu/moodle-local_xentreeconnect/issues/5. A custom menu item works too: clear the boxes above and add
 `Learn with Xentree|/local/xentreeconnect/launch.php` under **Site administration > Appearance > Advanced theme
 settings > Custom menu items**.
 
@@ -143,10 +142,10 @@ retention period (default 365 days, **an interim value**; `0` keeps it until you
 about that). **Delete all Xentree data** on the status page removes everything, for example when the integration is
 switched off and withdrawal notices will no longer arrive. When a session is deleted in Xentree, this plugin does not
 remove the stored row for it (it ignores that notice); the row stays until the retention period ends or until you delete
-the data.
+the data. Handling that notice is planned for 0.3.0 (see https://github.com/godfreu/moodle-local_xentreeconnect/issues/5).
 
-Once Xentree sends `erpi.session.completed`, it does so only for members who have agreed to share their activity in the
-current Xentree consent, and not for sessions shorter than about one minute (see
+Xentree sends `erpi.session.completed` only for members who have agreed to share their activity in the current Xentree
+consent, and not for sessions shorter than about one minute (see
 [External service requirements](#external-service-requirements)). Withdrawal notices are sent regardless.
 
 ## Tests

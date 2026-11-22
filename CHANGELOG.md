@@ -28,9 +28,11 @@
   the web root is preferred. Encrypting the stored value is planned for 0.3.0.
 - **Receiver:** extra optional fields in an event are ignored and never stored; a ping without `external_subject` and an
   event without the optional fields are accepted; new tests cover these and unknown event types (answered 2xx).
-- **Learning-activity events:** the README and the reviewer guide state that Xentree does not send
-  `erpi.session.completed` to this site yet (consent withdrawals are received today). A session deleted in Xentree
-  (`session.deleted`) is acknowledged but its stored row stays until retention; handling it is planned for 0.3.0.
+- **Learning-activity events:** the README and the reviewer guide describe when Xentree sends `erpi.session.completed`
+  (members who agreed to share their activity, sessions of about one minute or longer, a webhook that subscribes to it)
+  and how to verify the receiver with the test ping and signed requests. A session deleted in Xentree
+  (`session.deleted`) is acknowledged but its stored row stays until retention; handling it is planned for 0.3.0, see
+  https://github.com/godfreu/moodle-local_xentreeconnect/issues/5. Deep links to specific Xentree material are discussed there too.
 - **Logging:** webhook outcomes are logged through `debugging()` instead of `error_log()`; they reach the server log
   only while debugging is turned on. The status page counters are unaffected.
 - Moodle coding style applied (no behaviour change).

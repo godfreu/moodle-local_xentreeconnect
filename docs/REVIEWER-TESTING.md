@@ -61,12 +61,11 @@ The ticket contains: the **Xentree base URL**, **Client ID**, **Issuer**, **Audi
 
 ## 3. Learning-activity events
 
-The plugin can receive `erpi.session.completed` (a member finished a learning session) and `connect.consent.revoked` (a
-member withdrew). Xentree does not send `erpi.session.completed` to this site yet, so completing a session in Xentree does
-not create a row today; the plugin side is checked with **3a** (test ping) and **3b** (signed deliveries). When Xentree
-starts sending it, it is sent only for members who have agreed to share their activity in the current Xentree consent
-(other members are skipped, and so is a session shorter than about one minute). `connect.consent.revoked` is sent
-regardless.
+The plugin receives and stores `erpi.session.completed` (a member finished a learning session) when Xentree sends it,
+and `connect.consent.revoked` (a member withdrew). Xentree sends the session event only for members who have agreed to
+share their activity in the current Xentree consent, for sessions of about one minute or longer, and to a webhook that
+subscribes to that event; `connect.consent.revoked` is sent regardless. You verify the receiver with the test ping (**3a**)
+and with signed requests (**3b**).
 
 The webhook's event list in Xentree offers only these two events. A test delivery (`webhook.test.ping`) is sent with the **Send Test Ping** button of the webhook in Xentree; it is not part of the event list, and the status page counts it as `ping`.
 
@@ -77,9 +76,8 @@ is counted for it.
 **3a. Through Xentree (test ping).** The webhook for the review site is already registered in Xentree, so there is
 nothing to register. Its address is the status-page URL (`https://<your-moodle-site>/local/xentreeconnect/webhook.php`).
 In Xentree, press **Send Test Ping** on that webhook. Then open the status page: the counters for the last 24 hours show
-one `ping`, and nothing is stored. A completed learning session does not produce an event yet (see above); use 3b to see
-the stored session row and the privacy export
-(**Site administration → Users → Privacy and policies → Data requests**).
+one `ping`, and nothing is stored. The stored session row and the privacy export
+(**Site administration → Users → Privacy and policies → Data requests**) are shown with 3b.
 
 On another site the webhook is registered by an administrator of the Xentree organisation: **Organizations → Connect
 Integrations →** the Webhooks icon of the integration **→ Add webhook** (a second factor and the Connect entitlement are
