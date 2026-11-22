@@ -98,7 +98,7 @@ final class header_item_test extends \basic_testcase {
         $this->assertSame(1, preg_match('/\$plugin->version\s*=\s*(\d{10});/', $version, $m));
         $this->assertGreaterThan(2026112200, (int) $m[1]);
         $this->assertStringContainsString("\$plugin->release = '0.2.2';", $version);
-        // db/upgrade.php has to carry the same number or the step never runs.
+        // The upgrade file has to carry the same number or the step never runs.
         $this->assertStringContainsString('upgrade_plugin_savepoint(true, ' . $m[1] . ",", $this->source('db/upgrade.php'));
     }
 
