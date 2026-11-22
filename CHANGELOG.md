@@ -12,6 +12,10 @@
   requirements, and what data is exchanged. Reviewer testing guide in `docs/REVIEWER-TESTING.md`.
 - **CI:** GitHub Actions with moodle-plugin-ci on Moodle 4.4, 4.5 and 5.0.
 - **Privacy API:** the metadata now also declares `deliveryid` and `eventid` of the stored activity.
+- **Button placement:** on pages that use Boost's drawers layout (dashboard, course) the automatically placed button sat
+  behind the fixed navbar. A small `styles.css` now pushes it below the navbar. Pages without that layout, such as the
+  login page, are not affected. Moodle adds plugin stylesheets to the theme CSS, so the theme cache is rebuilt when the
+  site is upgraded to this build.
 - **Logging:** webhook outcomes are logged through `debugging()` instead of `error_log()`; they reach the server log
   only while debugging is turned on. The status page counters are unaffected.
 - Moodle coding style applied (no behaviour change).
