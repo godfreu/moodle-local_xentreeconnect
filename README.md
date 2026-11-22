@@ -56,23 +56,35 @@ Withdrawal notices (`connect.consent.revoked`) are sent regardless.
 5. **Register the site in Xentree** (organization settings → Connect integrations) with the same Client ID, Issuer,
    Audience and the JWKS from the status page. The organization needs the Connect entitlement.
 
-## The Connect button
+## The Connect link: header item and button
 
-In the plugin settings choose where the button appears automatically: **Dashboard**, **Course pages**, **Login page**
-(nothing is shown until at least one is selected). The button text and language follow the setting and the user's
-language (EN/ID included). The Xentree base URL decides where learners go, so a custom domain just works.
+In the plugin settings, under **Show the link in**, choose where Xentree is offered automatically:
 
-To put the button anywhere else (a menu item, custom HTML, a theme), link to:
+- **Header (primary navigation)** (the default on a new installation): an item **Learn with AI** (**Belajar dengan AI**
+  in Indonesian) in the site's top navigation bar, next to Home and Dashboard. It is shown only to logged-in users, not
+  guests, and only when the plugin is fully configured (otherwise nothing is added, for administrators as well). On a
+  narrow screen it is part of the same menu as the other items. The text follows the user's language; set **Menu item
+  text** to use your own (up to 80 characters), or leave it empty for the default.
+- **Dashboard**, **Course pages**, **Login page**: the **Connect with Xentree** button at the top of those pages (its
+  text can be changed with **Button text**).
+
+Every box may stay empty: then no item and no button is added anywhere. The header item is new in 0.2.2. A site that
+already has the plugin keeps exactly the placements it had saved; only new installations start with the header item.
+The Xentree base URL decides where learners go, so a custom domain just works.
+
+To put the link anywhere else (custom HTML, a theme), or to use your own menu instead of the header item, link to:
 
 ```
 https://<your-moodle>/local/xentreeconnect/launch.php
 ```
 
 `launch.php` signs the assertion for the logged-in user and sends the browser to Xentree with a form POST.
-Logged-out visitors are asked to log in to Moodle first.
+Logged-out visitors are asked to log in to Moodle first. A custom menu item works too: clear the boxes above and add
+`Learn with Xentree|/local/xentreeconnect/launch.php` under **Site administration > Appearance > Advanced theme
+settings > Custom menu items**.
 
-If the plugin is not fully configured, ordinary users never see the button; site admins see a notice that links to
-the status page.
+If the plugin is not fully configured, ordinary users never see the button or the header item; site admins see a notice
+in place of the button that links to the status page.
 
 ## Install
 
@@ -107,7 +119,8 @@ The headers and fields are listed under [Data exchanged with Xentree](#data-exch
 
 1. In the plugin settings, find **Receiving activity from Xentree**: it shows the URL
    (`https://<your-moodle>/local/xentreeconnect/webhook.php`). Register it as the webhook URL of your Connect client
-   in Xentree (administrators of the organization, or the runbook, explain how).
+   in Xentree. An administrator of the Xentree organisation does that: **Organizations → Connect Integrations →** the
+   Webhooks icon of the integration **→ Add webhook** (it needs a second factor and the Connect entitlement).
 2. Xentree shows the **signing secret once** when the webhook is created. Put it in **Webhook secret** (or, better, in
    `config.php` or a file; see below). When Xentree rotates the secret, put the old one in **Previous webhook secret**
    for the 24 hours both are valid, then clear it.
@@ -127,7 +140,9 @@ Stored data: one row per completed session in `local_xentreeconnect_event` (even
 was received, duration, status). It is **not** written to grades or course completion. Activity is deleted after the
 retention period (default 365 days, **an interim value**; `0` keeps it until you delete it, and the status page warns
 about that). **Delete all Xentree data** on the status page removes everything, for example when the integration is
-switched off and withdrawal notices will no longer arrive.
+switched off and withdrawal notices will no longer arrive. When a session is deleted in Xentree, this plugin does not
+remove the stored row for it (it ignores that notice); the row stays until the retention period ends or until you delete
+the data.
 
 Xentree sends `erpi.session.completed` only for members who have agreed to share their activity in the current Xentree
 consent, and not for sessions shorter than about one minute (see

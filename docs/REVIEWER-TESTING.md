@@ -18,8 +18,11 @@ You need a Moodle 4.4 or later site and an administrator account.
 3. **Site administration → Plugins → Local plugins → Xentree Connect status.** Expected: a warning that lists the
    missing settings, the webhook URL, the credential sources, the counters (all zero) and a **Delete all Xentree data**
    button. No private key or secret is ever shown.
-4. Select a placement (Dashboard, Course pages or Login page) in the settings, then open that page.
-   - As an administrator: a notice that the plugin is not configured, linking to the status page.
+4. In **Show the link in**, the default on a new installation is **Header (primary navigation)** only. Open any page
+   as an ordinary user: **no "Learn with AI" item and no button**, because the plugin is not configured. Then select
+   Dashboard, Course pages or Login page and open that page.
+   - As an administrator: a notice that the plugin is not configured, linking to the status page (the button only; the
+     header item is never shown while the plugin is not configured).
    - As an ordinary user (or logged out): **no button at all**.
 5. Open `/local/xentreeconnect/launch.php` as an ordinary user. Expected: an error message that the connection is
    unavailable. As an administrator the message names what is missing. Nothing is sent to Xentree.
@@ -46,6 +49,10 @@ The ticket contains: the **Xentree base URL**, **Client ID**, **Issuer**, **Audi
 2. Open the status page. Expected: **ready**, and the public JWKS derived from the key. The Issuer must be this
    site's address (`https://<your-moodle-site>`) as registered in the review integration. The review site and its test
    access are provided separately through the Marketplace ticket.
+2a. Leave **Header (primary navigation)** selected. Expected: logged in as an ordinary user (not a guest), the item
+   **Learn with AI** is in the top navigation bar and links to `/local/xentreeconnect/launch.php`; logged out or as the
+   guest it is absent. Clear every box: neither the item nor a button appears anywhere. Text changes with **Menu item
+   text**.
 3. Press **Test launch** (or open `/local/xentreeconnect/launch.php`). Expected: the browser is posted to
    `{base URL}/connect/v1/launch/{Client ID}` and Xentree shows its consent screen for the Moodle user.
    Without JavaScript the same page shows a **Continue to Xentree** button.
@@ -65,10 +72,23 @@ On this side, the status page counters (last 24 hours) are what shows whether a 
 decides not to send (for example for a member who has not agreed to share activity) never reaches this site, so nothing
 is counted for it.
 
-**3a. Through Xentree.** [ISI: langkah menyelesaikan satu sesi belajar di Xentree dengan akun reviewer, dan di mana
-mendaftarkan/menguji webhook ke URL situs reviewer]. Then open the status page: the counters for the last 24 hours show
-the delivery, and the member's row appears in the privacy export
-(**Site administration → Users → Privacy and policies → Data requests**).
+**3a. Through Xentree.** The webhook for the review site is already registered in Xentree, with the event
+`erpi.session.completed` selected, so there is nothing to register. The status-page URL
+(`https://<your-moodle-site>/local/xentreeconnect/webhook.php`) is the one it points to.
+
+1. Launch from Moodle (stage 2) and accept the Xentree consent, which includes sharing your learning activity.
+2. In Xentree open **Learn** (`/learn`), start a conversation and study for at least one minute (a shorter session is
+   not sent).
+3. Leave the Learn page. Xentree closes the session by itself when you leave it, or after about five minutes without
+   activity.
+4. Wait about one minute for the delivery.
+
+Then open the status page: the counters for the last 24 hours show the delivery, and the member's row appears in the
+privacy export (**Site administration → Users → Privacy and policies → Data requests**).
+
+On another site the webhook is registered by an administrator of the Xentree organisation: **Organizations → Connect
+Integrations →** the Webhooks icon of the integration **→ Add webhook** (a second factor and the Connect entitlement are
+required), then paste the signing secret into the plugin.
 
 **3b. Without waiting for Xentree.** Your Moodle site must be reachable over HTTPS from the machine running the
 command. Sign a test delivery yourself with the webhook secret from the ticket. A completed session for a Moodle user
