@@ -25,12 +25,13 @@ What the plugin sends to Xentree and receives from it is listed under [Data exch
 Without a Xentree organisation, the plugin can be installed but the button stays hidden for users, the status page lists
 what is missing, and no data leaves your site.
 
-**Learning-activity events.** Xentree can send a `erpi.session.completed` event to this site when a member finishes a
-learning session. [VERIFIKASI PRODUCTION: tersedia di production hanya bila sudah terbukti ter-deploy] It is sent only
-when all of these are true: the organisation has the Connect entitlement, the session started from a Connect launch from
-this site, a webhook with that event type is registered, and the member has agreed to share their activity in the
-current Xentree consent. Other members are skipped, and a session shorter than about one minute is not sent.
-Withdrawal notices (`connect.consent.revoked`) are sent regardless.
+**Learning-activity events.** The plugin can receive and store an `erpi.session.completed` event when a member
+finishes a learning session, but Xentree does not send it to this site yet. Until it does, no session events arrive and
+the receiver only shows test pings and consent withdrawals (`connect.consent.revoked`, which are sent regardless). When
+Xentree starts sending it, it will be sent only when all of these are true: the organisation has the Connect
+entitlement, the session started from a Connect launch from this site, a webhook with that event type is registered, and
+the member has agreed to share their activity in the current Xentree consent. Other members are skipped, and a session
+shorter than about one minute is not sent.
 
 ## What an admin has to do
 
@@ -144,8 +145,8 @@ switched off and withdrawal notices will no longer arrive. When a session is del
 remove the stored row for it (it ignores that notice); the row stays until the retention period ends or until you delete
 the data.
 
-Xentree sends `erpi.session.completed` only for members who have agreed to share their activity in the current Xentree
-consent, and not for sessions shorter than about one minute (see
+Once Xentree sends `erpi.session.completed`, it does so only for members who have agreed to share their activity in the
+current Xentree consent, and not for sessions shorter than about one minute (see
 [External service requirements](#external-service-requirements)). Withdrawal notices are sent regardless.
 
 ## Tests

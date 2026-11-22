@@ -61,10 +61,12 @@ The ticket contains: the **Xentree base URL**, **Client ID**, **Issuer**, **Audi
 
 ## 3. Learning-activity events
 
-Xentree sends `erpi.session.completed` when a member finishes a learning session, only for members who have agreed
-to share their activity in the current Xentree consent (other members are skipped, and so is a session shorter than
-about one minute), and `connect.consent.revoked` when a member withdraws.
-[VERIFIKASI PRODUCTION: status ketersediaan event ini di production]
+The plugin can receive `erpi.session.completed` (a member finished a learning session) and `connect.consent.revoked` (a
+member withdrew). Xentree does not send `erpi.session.completed` to this site yet, so completing a session in Xentree does
+not create a row today; the plugin side is checked with **3a** (test ping) and **3b** (signed deliveries). When Xentree
+starts sending it, it is sent only for members who have agreed to share their activity in the current Xentree consent
+(other members are skipped, and so is a session shorter than about one minute). `connect.consent.revoked` is sent
+regardless.
 
 The webhook's event list in Xentree offers only these two events. A test delivery (`webhook.test.ping`) is sent with the **Send Test Ping** button of the webhook in Xentree; it is not part of the event list, and the status page counts it as `ping`.
 
@@ -72,19 +74,12 @@ On this side, the status page counters (last 24 hours) are what shows whether a 
 decides not to send (for example for a member who has not agreed to share activity) never reaches this site, so nothing
 is counted for it.
 
-**3a. Through Xentree.** The webhook for the review site is already registered in Xentree, with the event
-`erpi.session.completed` selected, so there is nothing to register. The status-page URL
-(`https://<your-moodle-site>/local/xentreeconnect/webhook.php`) is the one it points to.
-
-1. Launch from Moodle (stage 2) and accept the Xentree consent, which includes sharing your learning activity.
-2. In Xentree open **Learn** (`/learn`), start a conversation and study for at least one minute (a shorter session is
-   not sent).
-3. Leave the Learn page. Xentree closes the session by itself when you leave it, or after about five minutes without
-   activity.
-4. Wait about one minute for the delivery.
-
-Then open the status page: the counters for the last 24 hours show the delivery, and the member's row appears in the
-privacy export (**Site administration → Users → Privacy and policies → Data requests**).
+**3a. Through Xentree (test ping).** The webhook for the review site is already registered in Xentree, so there is
+nothing to register. Its address is the status-page URL (`https://<your-moodle-site>/local/xentreeconnect/webhook.php`).
+In Xentree, press **Send Test Ping** on that webhook. Then open the status page: the counters for the last 24 hours show
+one `ping`, and nothing is stored. A completed learning session does not produce an event yet (see above); use 3b to see
+the stored session row and the privacy export
+(**Site administration → Users → Privacy and policies → Data requests**).
 
 On another site the webhook is registered by an administrator of the Xentree organisation: **Organizations → Connect
 Integrations →** the Webhooks icon of the integration **→ Add webhook** (a second factor and the Connect entitlement are
