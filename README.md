@@ -166,8 +166,9 @@ This plugin is a beta. Before using it with real learners:
      ```
   2. A file outside the web root: set **Private key file** / **Webhook secret file** to its absolute path (readable by
      the web server user only, e.g. mode 0640). Files inside the web root are refused.
-  3. The database (fallback): the secrets are masked in the settings page, but the private key field still shows the
-     PEM to anyone who can open the settings, and both are in database backups.
+  3. The database (fallback). Values saved on the settings page are stored as plain text in the database; any
+     administrator who can open the settings can reveal them (the webhook secret is masked but can be unmasked, and the
+     private key field shows the PEM), and they are included in database backups.
 - **Rotate keys deliberately.** Changing the launch key means registering the new JWKS in Xentree first, otherwise
   launches fail with HTTP 401. Use a new `kid` for each key.
 - **Decide the retention period** with your data-protection adviser; 365 days is an interim default.
