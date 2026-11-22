@@ -91,5 +91,16 @@ function xmldb_local_xentreeconnect_upgrade($oldversion) {
         upgrade_plugin_savepoint(true, 2026101400, 'local', 'xentreeconnect');
     }
 
+    if ($oldversion < 2026112201) {
+        // 0.2.2: the "header" placement was added and new installs default to it. Sites that already have the plugin keep
+        // exactly what they had: the old default was "no placement", so a missing value is stored as an empty one here.
+        // Moodle applies setting defaults only to settings that have no value, so a stored value (including an empty
+        // one) is never replaced.
+        if (get_config('local_xentreeconnect', 'placements') === false) {
+            set_config('placements', '', 'local_xentreeconnect');
+        }
+        upgrade_plugin_savepoint(true, 2026112201, 'local', 'xentreeconnect');
+    }
+
     return true;
 }

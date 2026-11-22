@@ -154,12 +154,22 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/menulabel',
+        get_string('menulabel', 'local_xentreeconnect'),
+        get_string('menulabeldesc', 'local_xentreeconnect'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // New installs get the header item only. Existing sites keep what they saved (see db/upgrade.php).
     $settings->add(new admin_setting_configmulticheckbox(
         'local_xentreeconnect/placements',
         get_string('placements', 'local_xentreeconnect'),
         get_string('placementsdesc', 'local_xentreeconnect'),
-        [],
+        ['header' => 1],
         [
+            'header' => get_string('placement_header', 'local_xentreeconnect'),
             'dashboard' => get_string('placement_dashboard', 'local_xentreeconnect'),
             'course' => get_string('placement_course', 'local_xentreeconnect'),
             'login' => get_string('placement_login', 'local_xentreeconnect'),

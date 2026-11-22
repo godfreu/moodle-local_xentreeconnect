@@ -16,6 +16,11 @@
   behind the fixed navbar. A small `styles.css` now pushes it below the navbar. Pages without that layout, such as the
   login page, are not affected. Moodle adds plugin stylesheets to the theme CSS, so the theme cache is rebuilt when the
   site is upgraded to this build.
+- **Header item:** a "Learn with AI" item in the primary navigation (the header) that opens the Xentree launch for
+  logged-in users (not guests) once the plugin is configured. It is a new choice, "Header (primary navigation)", in
+  the placements setting and the default for new installs; the text can be changed in the new "Menu item text"
+  setting. Sites that already have the plugin keep their saved placements, and every box may stay empty (no item and
+  no button, for example when you link to `launch.php` from your own menu).
 - **Logging:** webhook outcomes are logged through `debugging()` instead of `error_log()`; they reach the server log
   only while debugging is turned on. The status page counters are unaffected.
 - Moodle coding style applied (no behaviour change).

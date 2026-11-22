@@ -89,4 +89,44 @@ final class button_policy_test extends \basic_testcase {
         $long = str_repeat('é', 200);
         $this->assertSame(button_policy::MAX_LABEL_LENGTH, mb_strlen(button_policy::label($long, 'Default')));
     }
+
+    public function test_header_is_a_placement_but_never_a_page_type(): void {
+        $this->assertContains('header', button_policy::PLACEMENTS);
+        $this->assertSame(['header'], button_policy::enabled_placements('header'));
+        $this->assertSame(['header', 'course'], button_policy::enabled_placements('course,header'));
+        // The header item is not tied to a page, so no page type may map to it and it never makes the button render.
+        $this->assertFalse(button_policy::should_render('my-index', ['header']));
+        $this->assertFalse(button_policy::should_render('course-view-topics', ['header']));
+        $this->assertNotSame('header', button_policy::placement_for_pagetype('header'));
+    }
+
+    public function test_empty_selection_shows_neither_item_nor_button(): void {
+        $enabled = button_policy::enabled_placements('');
+        $this->assertSame([], $enabled);
+        $this->assertFalse(button_policy::header_item_visible($enabled, true, true, false));
+        foreach (['my-index', 'course-view-topics', 'login-index'] as $pagetype) {
+            $this->assertFalse(button_policy::should_render($pagetype, $enabled));
+        }
+    }
+
+    public function test_header_item_needs_placement_configuration_and_a_real_login(): void {
+        $on = ['header'];
+        $this->assertTrue(button_policy::header_item_visible($on, true, true, false));
+        // Not enabled (other placements do not switch it on).
+        $this->assertFalse(button_policy::header_item_visible(['dashboard', 'course', 'login'], true, true, false));
+        $this->assertFalse(button_policy::header_item_visible([], true, true, false));
+        // Plugin not configured: no item, not even for an admin (the button shows admins a notice, the header does not).
+        $this->assertFalse(button_policy::header_item_visible($on, false, true, false));
+        // Not logged in.
+        $this->assertFalse(button_policy::header_item_visible($on, true, false, false));
+        // Guest user (logged in as guest).
+        $this->assertFalse(button_policy::header_item_visible($on, true, true, true));
+    }
+
+    public function test_menu_label_default_custom_and_limit(): void {
+        $this->assertSame('Learn with AI', button_policy::label('', 'Learn with AI'));
+        $this->assertSame('Belajar dengan AI', button_policy::label(false, 'Belajar dengan AI'));
+        $this->assertSame('Study', button_policy::label('  Study ', 'Learn with AI'));
+        $this->assertSame(80, mb_strlen(button_policy::label(str_repeat('x', 300), 'Learn with AI')));
+    }
 }

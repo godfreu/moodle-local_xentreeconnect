@@ -45,8 +45,11 @@ final class button_policy {
      */
     public const HIDDEN = 'hidden';
 
-    /** Pages the admin can enable the button on. */
-    public const PLACEMENTS = ['dashboard', 'course', 'login'];
+    /** Placement key of the item in the primary navigation (header). It is not a page type. */
+    public const HEADER = 'header';
+
+    /** Places the admin can enable: the header item and the pages that get the button. */
+    public const PLACEMENTS = [self::HEADER, 'dashboard', 'course', 'login'];
 
     /**
      * Longest button text that is used, in characters.
@@ -110,7 +113,19 @@ final class button_policy {
     }
 
     /**
-     * Admin-defined button text, falling back to the language string default when empty.
+     * Whether the header (primary navigation) item is shown.
+     *
+     * @param array $enabled Enabled placements.
+     * @param bool $configured Whether the plugin is configured.
+     * @param bool $loggedin Whether the user is logged in.
+     * @param bool $guest Whether the user is the guest user.
+     */
+    public static function header_item_visible(array $enabled, bool $configured, bool $loggedin, bool $guest): bool {
+        return in_array(self::HEADER, $enabled, true) && $configured && $loggedin && !$guest;
+    }
+
+    /**
+     * Admin-defined button or menu text, falling back to the language string default when empty.
      *
      * @param mixed $custom Admin-defined text.
      * @param string $default Default text.
