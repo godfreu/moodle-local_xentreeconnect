@@ -55,7 +55,7 @@ final class styles_test extends \basic_testcase {
         $rules = $this->rules();
         $this->assertNotSame('', $rules);
         $this->assertSame(substr_count($rules, '{'), substr_count($rules, '}'));
-        $this->assertSame(2, substr_count($rules, '{'));
+        $this->assertSame(5, substr_count($rules, '{'));
         $this->assertStringNotContainsString('@import', $rules);
         $this->assertStringNotContainsString('url(', $rules);
         // Moodle's stylelint forbids it, and the point is to work with Bootstrap's !important utilities, not fight them.
@@ -77,6 +77,24 @@ final class styles_test extends \basic_testcase {
             '%body\.uses-drawers #page-wrapper > \.local-xentreeconnect ~ #page\.drawers \{\s*margin-top: 0;\s*\}%',
             $this->rules()
         );
+    }
+
+    public function test_an_open_drawer_moves_the_button_over_like_boost_moves_the_page(): void {
+        $rules = $this->rules();
+        // Boost moves #page only from the lg breakpoint (992px), so the button is moved only there.
+        $this->assertMatchesRegularExpression('/@media \(min-width: 992px\) \{.*padding-left.*padding-right.*\}\s*$/s', $rules);
+        $this->assertMatchesRegularExpression(
+            '%body\.uses-drawers #page-wrapper:has\(#page\.show-drawer-left\) > \.local-xentreeconnect \{\s*'
+                . 'padding-left: calc\(285px \+ 1rem\);\s*\}%',
+            $rules
+        );
+        $this->assertMatchesRegularExpression(
+            '%body\.uses-drawers #page-wrapper:has\(#page\.show-drawer-right\) > \.local-xentreeconnect \{\s*'
+                . 'padding-right: calc\(315px \+ 1rem\);\s*\}%',
+            $rules
+        );
+        // A browser without :has() must lose only these rules, so no selector list may mix them with the others.
+        $this->assertSame(0, substr_count($rules, ','));
     }
 
     public function test_selectors_match_the_markup_the_plugin_renders(): void {

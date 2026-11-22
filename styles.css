@@ -6,6 +6,12 @@
  *
  * Padding, not margin: the Bootstrap utility class my-3 on the button wrapper sets its margins with !important.
  * The sibling rule removes the offset Boost already gives #page for the navbar, so no second gap appears.
+ *
+ * From the lg breakpoint (992px) an open course index (left, 285px) or block drawer (right, 315px) is a fixed panel
+ * beside #page, and Boost moves #page over by the same amount. Do the same for the button, or it would sit behind the
+ * panel. The state is the class that Boost's JavaScript puts on #page, so the rule needs :has(); a browser without it
+ * skips only those two rules (they are kept apart on purpose).
+ *
  * Pages without the drawers layout, such as the login page, and themes without a fixed navbar are not touched.
  */
 body.uses-drawers #page-wrapper > .local-xentreeconnect {
@@ -14,4 +20,14 @@ body.uses-drawers #page-wrapper > .local-xentreeconnect {
 
 body.uses-drawers #page-wrapper > .local-xentreeconnect ~ #page.drawers {
     margin-top: 0;
+}
+
+@media (min-width: 992px) {
+    body.uses-drawers #page-wrapper:has(#page.show-drawer-left) > .local-xentreeconnect {
+        padding-left: calc(285px + 1rem);
+    }
+
+    body.uses-drawers #page-wrapper:has(#page.show-drawer-right) > .local-xentreeconnect {
+        padding-right: calc(315px + 1rem);
+    }
 }
