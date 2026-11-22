@@ -1,0 +1,17 @@
+/*
+ * Placement of the Connect button (local_xentreeconnect).
+ *
+ * Boost prints the button HTML in #page-wrapper before its fixed navbar, so on pages with the drawers layout (dashboard,
+ * course) the button would sit behind the navbar. Push it below the navbar (60px high plus a 1px border).
+ *
+ * Padding, not margin: the Bootstrap utility class my-3 on the button wrapper sets its margins with !important.
+ * The sibling rule removes the offset Boost already gives #page for the navbar, so no second gap appears.
+ * Pages without the drawers layout, such as the login page, and themes without a fixed navbar are not touched.
+ */
+body.uses-drawers #page-wrapper > .local-xentreeconnect {
+    padding-top: 61px;
+}
+
+body.uses-drawers #page-wrapper > .local-xentreeconnect ~ #page.drawers {
+    margin-top: 0;
+}
