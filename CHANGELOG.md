@@ -14,13 +14,23 @@
 - **Privacy API:** the metadata now also declares `deliveryid` and `eventid` of the stored activity.
 - **Button placement:** on pages that use Boost's drawers layout (dashboard, course) the automatically placed button sat
   behind the fixed navbar. A small `styles.css` now pushes it below the navbar. Pages without that layout, such as the
-  login page, are not affected. Moodle adds plugin stylesheets to the theme CSS, so the theme cache is rebuilt when the
-  site is upgraded to this build.
+  login page, are not affected. From the lg breakpoint (992px) the button also moves clear of an open course index or
+  block drawer (this part uses `:has()`; a browser without it only skips those two rules). Moodle adds plugin
+  stylesheets to the theme CSS, so the theme cache is rebuilt when the site is upgraded to this build.
 - **Header item:** a "Learn with AI" item in the primary navigation (the header) that opens the Xentree launch for
   logged-in users (not guests) once the plugin is configured. It is a new choice, "Header (primary navigation)", in
   the placements setting and the default for new installs; the text can be changed in the new "Menu item text"
   setting. Sites that already have the plugin keep their saved placements, and every box may stay empty (no item and
   no button, for example when you link to `launch.php` from your own menu).
+- **Settings help and secrets:** the help text of the credential file settings names the right item, and the help text of
+  the webhook secret now says plainly that a value saved on the settings page is stored as plain text in the database
+  (masked, but an administrator can reveal it). README "Before production" says the same; `config.php` or a file outside
+  the web root is preferred. Encrypting the stored value is planned for 0.3.0.
+- **Receiver:** extra optional fields in an event are ignored and never stored; a ping without `external_subject` and an
+  event without the optional fields are accepted; new tests cover these and unknown event types (answered 2xx).
+- **Learning-activity events:** the README and the reviewer guide state that Xentree does not send
+  `erpi.session.completed` to this site yet (consent withdrawals are received today). A session deleted in Xentree
+  (`session.deleted`) is acknowledged but its stored row stays until retention; handling it is planned for 0.3.0.
 - **Logging:** webhook outcomes are logged through `debugging()` instead of `error_log()`; they reach the server log
   only while debugging is turned on. The status page counters are unaffected.
 - Moodle coding style applied (no behaviour change).
