@@ -111,7 +111,8 @@ final class lang_test extends \basic_testcase {
             'webhooksecretprevfile' => 'webhooksecretprev',
         ];
         foreach ($expected as $label => $item) {
-            $pattern = "/get_string\('$label', 'local_xentreeconnect'\),\s*get_string\('credentialfiledesc', 'local_xentreeconnect', '([a-z]+)'\)/";
+            $pattern = "/get_string\('$label', 'local_xentreeconnect'\),\s*"
+                . "get_string\('credentialfiledesc', 'local_xentreeconnect', '([a-z]+)'\)/";
             $this->assertSame(1, preg_match($pattern, $source, $m), $label);
             $this->assertSame($item, $m[1], $label);
         }
