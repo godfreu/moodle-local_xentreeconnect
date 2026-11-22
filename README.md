@@ -1,10 +1,35 @@
 # Xentree Connect for Moodle (local_xentreeconnect)
 
-Beta plugin (0.2.1) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
+Beta plugin (0.2.2) that lets a Moodle site act as a trusted platform for Xentree Connect: it signs a short-lived
 JWT launch assertion for the logged-in Moodle user and sends the learner to Xentree, and it can receive learning
 activity back from Xentree for members who agreed to share it (see "Receiving activity from Xentree").
 
-Requires Moodle 4.4 or later (tested on 5.2).
+Requires Moodle 4.4 or later. Automated tests run on Moodle 4.4, 4.5 and 5.0.
+
+## External service requirements
+
+**Xentree is an external third-party service, and this plugin does not work without a Xentree organisation that has a
+Connect integration for your Moodle site.** The plugin is only a connector to Xentree ([xentree.ai](https://www.xentree.ai));
+Xentree is not part of the plugin and is not installed on your Moodle server.
+
+| | |
+|---|---|
+| **Service** | Xentree, at the Xentree base URL set in the plugin (default `https://my.xentree.ai`, or your organisation's custom domain). |
+| **What you need** | A Xentree **organisation** with the **Connect entitlement**, and a **Connect integration** registered for this Moodle site in that organisation: Client ID, Issuer, Audience, Organization ID, a key ID (`kid`) and the public JWKS of an RSA key pair you generate. Optionally a **webhook** with its signing secret, to receive learning activity. |
+| **How to get access** | Self-service, without contacting Xentree. A user with the **Administrator** role in Xentree opens **Organizations** (<https://my.xentree.ai/admin/organizations>), clicks the **Connect Integrations** icon, then **+ Add Integration**, and uses either the interactive wizard (one command) or the manual form: Name, Client ID, Issuer, Audience, Policy URL (optional), Description (optional), the option "Use a seat automatically on first Connect", and the JWKS JSON. The organisation needs the Connect entitlement, which comes with the **Team** or **Flexible** plan. |
+| **Cost** | Connect is an organisation feature: it requires an organisation on the Team or Flexible plan (monthly or yearly subscription). Individual members do not pay to join an organisation, but each person needs their own Xentree account, which is linked to their Moodle account at first launch with their consent. |
+| **User accounts** | Every individual needs their own Xentree account. The Xentree account is linked to the Moodle account on the first launch, through a consent screen that the owner of the account accepts (Google sign-in or sign-up is available). Roles in Xentree: Member, Administrator, Team Manager, Billing Manager. If **Use a seat automatically on first Connect** is turned off, only people who are already members of the organisation can connect; anyone else is refused and asked to contact their organisation administrator. If it is turned on, a person who is not yet a member joins the organisation as a Member at their first consent and takes one seat of the organisation's plan; the launch is refused if no seat is free or the subscription is not active. People who are already members do not take an additional seat. |
+| **Privacy policy / terms** | [Privacy policy](https://www.xentree.ai/privacy) · [Terms of service](https://www.xentree.ai/terms) |
+
+What the plugin sends to Xentree and receives from it is listed under [Data exchanged with Xentree](#data-exchanged-with-xentree).
+Without a Xentree organisation, the plugin can be installed but the button stays hidden for users, the status page lists
+what is missing, and no data leaves your site.
+
+**Learning-activity events.** The plugin receives and stores an `erpi.session.completed` event when Xentree sends it
+for a finished learning session. Xentree sends it only for members who have agreed to share their activity in the
+current Xentree consent, for sessions of about one minute or longer, and only to a webhook that subscribes to that event;
+the organisation needs the Connect entitlement and the session must have started from a Connect launch from this site.
+Other members are skipped. Withdrawal notices (`connect.consent.revoked`) are sent regardless.
 
 ## What an admin has to do
 
@@ -30,23 +55,36 @@ Requires Moodle 4.4 or later (tested on 5.2).
 5. **Register the site in Xentree** (organization settings → Connect integrations) with the same Client ID, Issuer,
    Audience and the JWKS from the status page. The organization needs the Connect entitlement.
 
-## The Connect button
+## The Connect link: header item and button
 
-In the plugin settings choose where the button appears automatically: **Dashboard**, **Course pages**, **Login page**
-(nothing is shown until at least one is selected). The button text and language follow the setting and the user's
-language (EN/ID included). The Xentree base URL decides where learners go, so a custom domain just works.
+In the plugin settings, under **Show the link in**, choose where Xentree is offered automatically:
 
-To put the button anywhere else (a menu item, custom HTML, a theme), link to:
+- **Header (primary navigation)** (the default on a new installation): an item **Learn with AI** (**Belajar dengan AI**
+  in Indonesian) in the site's top navigation bar, next to Home and Dashboard. It is shown only to logged-in users, not
+  guests, and only when the plugin is fully configured (otherwise nothing is added, for administrators as well). On a
+  narrow screen it is part of the same menu as the other items. The text follows the user's language; set **Menu item
+  text** to use your own (up to 80 characters), or leave it empty for the default.
+- **Dashboard**, **Course pages**, **Login page**: the **Connect with Xentree** button at the top of those pages (its
+  text can be changed with **Button text**).
+
+Every box may stay empty: then no item and no button is added anywhere. The header item is new in 0.2.2. A site that
+already has the plugin keeps exactly the placements it had saved; only new installations start with the header item.
+The Xentree base URL decides where learners go, so a custom domain just works.
+
+To put the link anywhere else (custom HTML, a theme), or to use your own menu instead of the header item, link to:
 
 ```
 https://<your-moodle>/local/xentreeconnect/launch.php
 ```
 
 `launch.php` signs the assertion for the logged-in user and sends the browser to Xentree with a form POST.
-Logged-out visitors are asked to log in to Moodle first.
+Logged-out visitors are asked to log in to Moodle first. Linking straight to a specific piece of Xentree material is not
+supported yet; it is discussed in https://github.com/godfreu/moodle-local_xentreeconnect/issues/5. A custom menu item works too: clear the boxes above and add
+`Learn with Xentree|/local/xentreeconnect/launch.php` under **Site administration > Appearance > Advanced theme
+settings > Custom menu items**.
 
-If the plugin is not fully configured, ordinary users never see the button; site admins see a notice that links to
-the status page.
+If the plugin is not fully configured, ordinary users never see the button or the header item; site admins see a notice
+in place of the button that links to the status page.
 
 ## Install
 
@@ -58,7 +96,7 @@ git clone https://github.com/godfreu/moodle-local_xentreeconnect.git local/xentr
 ```
 
 ### From ZIP package
-Extract the release ZIP archive into the Moodle `local/` directory so the plugin folder is `local/xentreeconnect` (or `public/local/xentreeconnect` on Moodle 5.1+).
+Extract the release ZIP archive into the Moodle `local/` directory so the plugin folder is `local/xentreeconnect` Moodle 5.1 and later serve plugins from the `public/` directory, so there the folder is `public/local/xentreeconnect`.
 
 Ensure permissions allow the web server to read the files, then run the upgrade:
 
@@ -73,17 +111,16 @@ Moodle POSTs `assertion=<JWT>` (form-encoded) to `{baseurl}/connect/v1/launch/{c
 `jti` (single use), and `email` when the user has a valid address. Xentree validates the claims and the signature
 against the registered JWKS, then redirects the browser to its consent screen.
 
-Implemented by `backend/app/routes/connect.py` in the Xentree repository.
-
 ## Receiving activity from Xentree
 
 Xentree sends two kinds of events to a webhook URL you register: `erpi.session.completed` (a member finished a
 learning session) and `connect.consent.revoked` (a member withdrew consent, so their stored activity must go).
-Payload and headers are specified in `docs/connect_partner_webhook_payload.md` of the Xentree repository.
+The headers and fields are listed under [Data exchanged with Xentree](#data-exchanged-with-xentree).
 
 1. In the plugin settings, find **Receiving activity from Xentree**: it shows the URL
    (`https://<your-moodle>/local/xentreeconnect/webhook.php`). Register it as the webhook URL of your Connect client
-   in Xentree (administrators of the organization, or the runbook, explain how).
+   in Xentree. An administrator of the Xentree organisation does that: **Organizations → Connect Integrations →** the
+   Webhooks icon of the integration **→ Add webhook** (it needs a second factor and the Connect entitlement).
 2. Xentree shows the **signing secret once** when the webhook is created. Put it in **Webhook secret** (or, better, in
    `config.php` or a file; see below). When Xentree rotates the secret, put the old one in **Previous webhook secret**
    for the 24 hours both are valid, then clear it.
@@ -97,16 +134,19 @@ from the internet to `webhook.php`, and rate-limit it there.
 What happens to a delivery: the signature and a 5-minute timestamp window are checked before anything is read; the
 body is capped at 256 KiB; the member is found from `moodle-user-<id>`; a repeated delivery (same delivery or event
 id) is acknowledged and stored once; unknown events and users are acknowledged and counted, never retried. Replies
-carry short codes only. Logs contain event types and delivery ids, never e-mail addresses or secrets.
+carry short codes only. Outcomes are logged through Moodle's `debugging()` (event type and delivery id, never e-mail addresses or secrets), so they appear in the server log only while debugging is turned on.
 
 Stored data: one row per completed session in `local_xentreeconnect_event` (event type, when it happened, when it
 was received, duration, status). It is **not** written to grades or course completion. Activity is deleted after the
 retention period (default 365 days, **an interim value**; `0` keeps it until you delete it, and the status page warns
 about that). **Delete all Xentree data** on the status page removes everything, for example when the integration is
-switched off and withdrawal notices will no longer arrive.
+switched off and withdrawal notices will no longer arrive. When a session is deleted in Xentree, this plugin does not
+remove the stored row for it (it ignores that notice); the row stays until the retention period ends or until you delete
+the data. Handling that notice is planned for 0.3.0 (see https://github.com/godfreu/moodle-local_xentreeconnect/issues/5).
 
-Until Xentree publishes the consent text that tells members their activity is shared (consent version 2), Xentree
-does not send `erpi.session.completed` at all. Withdrawal notices are sent regardless.
+Xentree sends `erpi.session.completed` only for members who have agreed to share their activity in the current Xentree
+consent, and not for sessions shorter than about one minute (see
+[External service requirements](#external-service-requirements)). Withdrawal notices are sent regardless.
 
 ## Tests
 
@@ -141,14 +181,50 @@ This plugin is a beta. Before using it with real learners:
      ```
   2. A file outside the web root: set **Private key file** / **Webhook secret file** to its absolute path (readable by
      the web server user only, e.g. mode 0640). Files inside the web root are refused.
-  3. The database (fallback): the secrets are masked in the settings page, but the private key field still shows the
-     PEM to anyone who can open the settings, and both are in database backups.
+  3. The database (fallback). Values saved on the settings page are stored as plain text in the database; any
+     administrator who can open the settings can reveal them (the webhook secret is masked but can be unmasked, and the
+     private key field shows the PEM), and they are included in database backups.
 - **Rotate keys deliberately.** Changing the launch key means registering the new JWKS in Xentree first, otherwise
   launches fail with HTTP 401. Use a new `kid` for each key.
 - **Decide the retention period** with your data-protection adviser; 365 days is an interim default.
 - **Review the consent wording** shown by Xentree with your data-protection adviser. Activity data flows to Moodle only
-  after members agree to the newer consent text.
+  for members who have agreed to share their activity in the current Xentree consent.
 - Set a real policy link (`policy_url`) on the integration in Xentree; the consent screen otherwise says none was given.
+
+## Data exchanged with Xentree
+
+**Sent to Xentree** when a user starts the Connect flow (button or `launch.php`): a form POST of one field, `assertion`,
+to `{base URL}/connect/v1/launch/{client ID}`. It is a JWT signed with your private key (RS256, header `kid`), valid for
+5 minutes, and used once:
+
+| Claim | Content |
+|---|---|
+| `iss`, `aud` | Issuer and Audience from the plugin settings |
+| `sub` | `moodle-user-<Moodle user ID>` |
+| `organization_id` | Xentree organization ID from the plugin settings |
+| `iat`, `exp`, `jti` | Issue time, expiry (5 minutes later), unique id |
+| `email` | The user's e-mail address, only when it is valid |
+
+Nothing else is sent by the plugin. (The user's browser then talks to Xentree directly, under Xentree's own terms.)
+
+**Received from Xentree** at `webhook.php`: `POST` with JSON, signed by Xentree with the webhook secret. Headers:
+`X-Xentree-Signature-V2` (`t=<unix time>,v1=<HMAC-SHA256 hex of "<t>.<raw body>">`, one `v1` per valid secret),
+`X-Xentree-Delivery` (delivery id) and `X-Xentree-Event` (event type). The body is at most 256 KiB and its fields are:
+
+| Event | Fields |
+|---|---|
+| `erpi.session.completed` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject` (`moodle-user-<ID>`), `session_duration_seconds`, `session_status` |
+| `connect.consent.revoked` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `external_subject`, `reason` (`user`, `admin` or `deprovision`) |
+| `webhook.test.ping` | `schema_version` (1), `event_id`, `event_type`, `occurred_at`, `message`; counted, not stored. Xentree sends it when an administrator presses **Send Test Ping**; it is not an event you select in the webhook's event list |
+
+Stored from `erpi.session.completed` only: delivery id, event id, event type, Moodle user, when it happened, when it was
+received, duration and status. Unknown events, unknown users and newer schema versions are acknowledged, counted and
+not stored.
+
+Xentree may include additional optional fields in the event (for example a session title, a session key and learning
+statistics, depending on the member's consent). This plugin ignores them and does not store them: it reads only the
+fields listed above, and the stored row has exactly the columns listed above. A session event without the optional
+fields, and a test ping without `external_subject`, are accepted as well.
 
 ## Privacy
 

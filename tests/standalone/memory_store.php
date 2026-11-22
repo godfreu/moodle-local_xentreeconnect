@@ -1,4 +1,5 @@
 <?php
+// phpcs:ignoreFile -- stand-ins for Moodle classes used only by the standalone test runner.
 // This file is part of Moodle - http://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
@@ -95,7 +96,12 @@ final class memory_store implements store {
         }
     }
 
-    /** Test helper: the total counted for an outcome, any hour. */
+    /**
+     * Test helper: the total counted for an outcome, any hour.
+     *
+     * @param string $outcome Outcome code.
+     * @return int
+     */
     public function counted(string $outcome): int {
         $total = 0;
         foreach ($this->stats as $key => $count) {

@@ -45,6 +45,8 @@ final class launcher {
     private $clock;
 
     /**
+     * Creates the launcher from raw plugin settings.
+     *
      * @param array $config Raw plugin settings (values that are not strings are treated as empty).
      * @param callable|null $clock Returns the current unix time; injectable for tests.
      */
@@ -74,6 +76,8 @@ final class launcher {
      * Whether a URL is an absolute https URL without credentials, query or fragment.
      *
      * Strict: surrounding whitespace makes it invalid, so callers trim user input first.
+     *
+     * @param string $url The URL.
      */
     public static function is_valid_https_url(string $url): bool {
         if ($url === '' || preg_match('/[\s\x00-\x1f]/', $url)) {
@@ -91,6 +95,8 @@ final class launcher {
 
     /**
      * Stable external subject for a Moodle user.
+     *
+     * @param int $userid Moodle user id.
      */
     public static function subject_for_user(int $userid): string {
         return 'moodle-user-' . $userid;
@@ -114,6 +120,9 @@ final class launcher {
         return $problems;
     }
 
+    /**
+     * Whether every setting needed to sign a launch is present and valid.
+     */
     public function is_configured(): bool {
         return $this->problems() === [];
     }
@@ -126,7 +135,7 @@ final class launcher {
     public function launch_url(): string {
         $problems = $this->problems();
         if (isset($problems['baseurl']) || isset($problems['clientid'])) {
-            throw new \RuntimeException('Xentree base URL and client ID must be configured.');
+            throw new \RuntimeException(get_string('launcherr_basicsmissing', 'local_xentreeconnect'));
         }
         return rtrim($this->config['baseurl'], '/') . '/connect/v1/launch/' . rawurlencode($this->config['clientid']);
     }
@@ -141,7 +150,11 @@ final class launcher {
     public function build_assertion(string $subject, ?string $email = null): string {
         $problems = $this->problems();
         if ($problems !== []) {
-            throw new \RuntimeException('Xentree Connect is not configured: ' . implode(', ', array_keys($problems)));
+            throw new \RuntimeException(get_string(
+                'launcherr_notconfigured',
+                'local_xentreeconnect',
+                implode(', ', array_keys($problems))
+            ));
         }
 
         $key = $this->private_key();
@@ -166,7 +179,7 @@ final class launcher {
             self::base64url(json_encode($payload, JSON_UNESCAPED_SLASHES));
         $signature = '';
         if (!openssl_sign($signinginput, $signature, $key, OPENSSL_ALGO_SHA256)) {
-            throw new \RuntimeException('Unable to sign the launch assertion.');
+            throw new \RuntimeException(get_string('launcherr_signfailed', 'local_xentreeconnect'));
         }
         return $signinginput . '.' . self::base64url($signature);
     }
@@ -178,11 +191,11 @@ final class launcher {
      */
     public function public_jwks(): array {
         if ($this->config['kid'] === '') {
-            throw new \RuntimeException('Key ID is not configured.');
+            throw new \RuntimeException(get_string('launcherr_kidmissing', 'local_xentreeconnect'));
         }
         $details = openssl_pkey_get_details($this->private_key());
         if ($details === false || ($details['type'] ?? null) !== OPENSSL_KEYTYPE_RSA) {
-            throw new \RuntimeException('Only RSA keys are supported.');
+            throw new \RuntimeException(get_string('launcherr_notrsa', 'local_xentreeconnect'));
         }
         return ['keys' => [[
             'kty' => 'RSA',
@@ -195,20 +208,27 @@ final class launcher {
     }
 
     /**
+     * Loads the configured private key.
+     *
      * @return \OpenSSLAsymmetricKey
      * @throws \RuntimeException
      */
     private function private_key() {
         if ($this->config['privatekeypem'] === '') {
-            throw new \RuntimeException('Private key is not configured.');
+            throw new \RuntimeException(get_string('launcherr_keymissing', 'local_xentreeconnect'));
         }
         $key = openssl_pkey_get_private($this->config['privatekeypem']);
         if ($key === false) {
-            throw new \RuntimeException('Private key is invalid or unreadable.');
+            throw new \RuntimeException(get_string('launcherr_keyinvalid', 'local_xentreeconnect'));
         }
         return $key;
     }
 
+    /**
+     * Encodes data as base64url without padding, as JWT requires.
+     *
+     * @param string $data Submitted value.
+     */
     private static function base64url(string $data): string {
         return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
     }

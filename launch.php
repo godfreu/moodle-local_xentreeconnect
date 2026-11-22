@@ -55,22 +55,23 @@ echo $OUTPUT->header();
 
 if ($error !== null) {
     if (is_siteadmin()) {
-        echo $OUTPUT->notification(s($error), 'warning');
-        echo html_writer::link(new moodle_url('/local/xentreeconnect/index.php'), get_string('statuspage', 'local_xentreeconnect'),
-            ['class' => 'btn btn-secondary']);
+        echo $OUTPUT->notification(s($error), \core\output\notification::NOTIFY_WARNING);
+        echo $OUTPUT->single_button(
+            new moodle_url('/local/xentreeconnect/index.php'),
+            get_string('statuspage', 'local_xentreeconnect'),
+            'get'
+        );
     } else {
-        echo $OUTPUT->notification(get_string('launchunavailable', 'local_xentreeconnect'), 'error');
+        echo $OUTPUT->notification(
+            get_string('launchunavailable', 'local_xentreeconnect'),
+            \core\output\notification::NOTIFY_ERROR
+        );
     }
     echo $OUTPUT->footer();
     exit;
 }
 
-echo html_writer::tag('p', get_string('redirecting', 'local_xentreeconnect'));
-echo html_writer::start_tag('form', ['id' => 'xentreeconnect-launch-form', 'method' => 'post', 'action' => $action]);
-echo html_writer::empty_tag('input', ['type' => 'hidden', 'name' => 'assertion', 'value' => $assertion]);
-echo html_writer::tag('button', get_string('continuetoxentree', 'local_xentreeconnect'),
-    ['type' => 'submit', 'class' => 'btn btn-primary']);
-echo html_writer::end_tag('form');
-$PAGE->requires->js_amd_inline("document.getElementById('xentreeconnect-launch-form').submit();");
+echo $OUTPUT->render(\local_xentreeconnect\output\launch_form::create($action, $assertion));
+$PAGE->requires->js_call_amd('local_xentreeconnect/launch', 'init', [\local_xentreeconnect\output\launch_form::FORM_ID]);
 
 echo $OUTPUT->footer();

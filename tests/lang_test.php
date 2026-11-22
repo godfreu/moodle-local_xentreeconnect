@@ -22,7 +22,6 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 /**
@@ -32,13 +31,18 @@ namespace local_xentreeconnect;
  * @coversNothing
  */
 final class lang_test extends \basic_testcase {
+    /**
+     * Loads the strings of one language.
+     *
+     * @param string $lang Language code.
+     */
     private function strings(string $lang): array {
         $string = [];
         $file = dirname(__DIR__) . "/lang/$lang/local_xentreeconnect.php";
         if (!defined('MOODLE_INTERNAL')) {
             define('MOODLE_INTERNAL', true);
         }
-        require $file;
+        require($file);
         return $string;
     }
 
@@ -62,7 +66,12 @@ final class lang_test extends \basic_testcase {
     public function test_every_literal_string_key_used_in_code_is_defined(): void {
         $en = $this->strings('en');
         $root = dirname(__DIR__);
-        $files = array_merge(glob("$root/*.php"), glob("$root/classes/*.php"), glob("$root/classes/output/*.php"), glob("$root/classes/privacy/*.php"));
+        $files = array_merge(
+            glob("$root/*.php"),
+            glob("$root/classes/*.php"),
+            glob("$root/classes/output/*.php"),
+            glob("$root/classes/privacy/*.php")
+        );
         $missing = [];
         foreach ($files as $file) {
             preg_match_all("/get_string\(\s*'([a-z0-9_]+)'\s*,\s*'local_xentreeconnect'/", file_get_contents($file), $matches);
@@ -92,5 +101,36 @@ final class lang_test extends \basic_testcase {
         }
         $this->assertArrayHasKey('problem_missing', $en);
         $this->assertArrayHasKey('problem_invalid', $en);
+    }
+
+    public function test_each_credential_file_help_names_its_own_setting_in_the_config_php_example(): void {
+        $source = file_get_contents(dirname(__DIR__) . '/settings.php');
+        $expected = [
+            'privatekeyfile' => 'privatekeypem',
+            'webhooksecretfile' => 'webhooksecret',
+            'webhooksecretprevfile' => 'webhooksecretprev',
+        ];
+        foreach ($expected as $label => $item) {
+            $pattern = "/get_string\('$label', 'local_xentreeconnect'\),\s*"
+                . "get_string\('credentialfiledesc', 'local_xentreeconnect', '([a-z]+)'\)/";
+            $this->assertSame(1, preg_match($pattern, $source, $m), $label);
+            $this->assertSame($item, $m[1], $label);
+        }
+        $this->assertCount(3, array_unique(array_values($expected)));
+
+        foreach (['en', 'id'] as $lang) {
+            $help = $this->strings($lang)['credentialfiledesc'];
+            $this->assertStringContainsString("'{\$a}' =>", $help, $lang);
+            $this->assertStringContainsString('trim(file_get_contents(', $help, $lang);
+            // The example is built from the setting's own key, never a hard-coded one.
+            foreach ($expected as $item) {
+                $this->assertStringNotContainsString("'$item' =>", $help, "$lang hard-codes $item");
+            }
+            foreach (['webhooksecret', 'webhooksecretprev'] as $item) {
+                $rendered = str_replace('{$a}', $item, $help);
+                $this->assertStringContainsString("'$item' =>", $rendered, $lang);
+                $this->assertStringNotContainsString('privatekeypem', $rendered, $lang);
+            }
+        }
     }
 }

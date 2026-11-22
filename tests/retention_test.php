@@ -22,20 +22,33 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
+
+defined('MOODLE_INTERNAL') || die();
 
 require_once(__DIR__ . '/standalone/memory_store.php');
 
 use local_xentreeconnect\tests\memory_store;
 
 /**
+ * Tests for the retention period.
+ *
  * @package    local_xentreeconnect
  * @covers     \local_xentreeconnect\retention
  */
 final class retention_test extends \basic_testcase {
+    /**
+     * Fixed current time.
+     */
     private const NOW = 1790000000;
 
+    /**
+     * An activity row received the given number of days ago.
+     *
+     * @param string $id The id.
+     * @param int $receivedat The receivedat.
+     * @param int $userid Moodle user id.
+     */
     private function row(string $id, int $receivedat, int $userid = 7): array {
         return [
             'deliveryid' => "d-$id", 'eventid' => "e-$id", 'eventtype' => 'erpi.session.completed', 'userid' => $userid,

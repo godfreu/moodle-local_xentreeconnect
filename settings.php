@@ -22,11 +22,20 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 defined('MOODLE_INTERNAL') || die();
 
 if ($hassiteconfig) {
     $settings = new admin_settingpage('local_xentreeconnect', get_string('pluginname', 'local_xentreeconnect'));
+
+    $settings->add(new admin_setting_heading(
+        'local_xentreeconnect/externalservice',
+        get_string('externalserviceheader', 'local_xentreeconnect'),
+        get_string(
+            'externalservicenotice',
+            'local_xentreeconnect',
+            'https://github.com/godfreu/moodle-local_xentreeconnect#external-service-requirements'
+        )
+    ));
 
     $settings->add(new admin_setting_heading(
         'local_xentreeconnect/header',
@@ -90,7 +99,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/privatekeyfile',
         get_string('privatekeyfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'privatekeypem'),
         '',
         PARAM_RAW_TRIMMED
     ));
@@ -118,7 +127,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/webhooksecretfile',
         get_string('webhooksecretfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'webhooksecret'),
         '',
         PARAM_RAW_TRIMMED
     ));
@@ -126,7 +135,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/webhooksecretprevfile',
         get_string('webhooksecretprevfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'webhooksecretprev'),
         '',
         PARAM_RAW_TRIMMED
     ));
@@ -145,12 +154,22 @@ if ($hassiteconfig) {
         PARAM_TEXT
     ));
 
+    $settings->add(new admin_setting_configtext(
+        'local_xentreeconnect/menulabel',
+        get_string('menulabel', 'local_xentreeconnect'),
+        get_string('menulabeldesc', 'local_xentreeconnect'),
+        '',
+        PARAM_TEXT
+    ));
+
+    // New installs get the header item only. Existing sites keep what they saved (see db/upgrade.php).
     $settings->add(new admin_setting_configmulticheckbox(
         'local_xentreeconnect/placements',
         get_string('placements', 'local_xentreeconnect'),
         get_string('placementsdesc', 'local_xentreeconnect'),
-        [],
+        ['header' => 1],
         [
+            'header' => get_string('placement_header', 'local_xentreeconnect'),
             'dashboard' => get_string('placement_dashboard', 'local_xentreeconnect'),
             'course' => get_string('placement_course', 'local_xentreeconnect'),
             'login' => get_string('placement_login', 'local_xentreeconnect'),

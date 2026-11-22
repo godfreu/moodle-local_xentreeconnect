@@ -22,10 +22,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect\task;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * Daily retention of the activity received from Xentree.
@@ -33,10 +30,16 @@ defined('MOODLE_INTERNAL') || die();
  * @package    local_xentreeconnect
  */
 class purge_events extends \core\task\scheduled_task {
+    /**
+     * Name of the task.
+     */
     public function get_name(): string {
         return get_string('task_purge', 'local_xentreeconnect');
     }
 
+    /**
+     * Deletes the activity older than the configured retention.
+     */
     public function execute(): void {
         $days = \local_xentreeconnect\retention::days(get_config('local_xentreeconnect', 'retentiondays'));
         $deleted = \local_xentreeconnect\retention::purge(new \local_xentreeconnect\moodle_store(), $days, time());

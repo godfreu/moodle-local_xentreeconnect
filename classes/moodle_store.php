@@ -22,12 +22,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-
 namespace local_xentreeconnect;
 
 use local_xentreeconnect\webhook\store;
-
-defined('MOODLE_INTERNAL') || die();
 
 /**
  * {@see store} on Moodle's database API.
@@ -35,21 +32,36 @@ defined('MOODLE_INTERNAL') || die();
  * @package    local_xentreeconnect
  */
 class moodle_store implements store {
+    /**
+     * Table holding the activity received from Xentree.
+     */
     private const TABLE = 'local_xentreeconnect_event';
+    /**
+     * Table holding the hourly counters of receiver outcomes.
+     */
     private const STAT = 'local_xentreeconnect_stat';
 
+    /**
+     * Stores an activity row unless its delivery id or event id is already known.
+     *
+     * @param array $record Activity row.
+     */
     public function insert_event(array $record): bool {
         global $DB;
-        if ($DB->record_exists(self::TABLE, ['deliveryid' => $record['deliveryid']]) ||
-                $DB->record_exists(self::TABLE, ['eventid' => $record['eventid']])) {
+        if (
+            $DB->record_exists(self::TABLE, ['deliveryid' => $record['deliveryid']]) ||
+                $DB->record_exists(self::TABLE, ['eventid' => $record['eventid']])
+        ) {
             return false;
         }
         try {
             $DB->insert_record(self::TABLE, (object) $record, false);
         } catch (\dml_write_exception $e) {
             // Two requests raced past the check: the unique indexes decide, and the loser is a duplicate.
-            if ($DB->record_exists(self::TABLE, ['deliveryid' => $record['deliveryid']]) ||
-                    $DB->record_exists(self::TABLE, ['eventid' => $record['eventid']])) {
+            if (
+                $DB->record_exists(self::TABLE, ['deliveryid' => $record['deliveryid']]) ||
+                    $DB->record_exists(self::TABLE, ['eventid' => $record['eventid']])
+            ) {
                 return false;
             }
             throw $e;
@@ -57,11 +69,21 @@ class moodle_store implements store {
         return true;
     }
 
+    /**
+     * Whether a Moodle user exists and is not deleted.
+     *
+     * @param int $userid Moodle user id.
+     */
     public function user_exists(int $userid): bool {
         global $DB;
         return $DB->record_exists('user', ['id' => $userid, 'deleted' => 0]);
     }
 
+    /**
+     * Deletes every stored row of one user.
+     *
+     * @param int $userid Moodle user id.
+     */
     public function delete_user_events(int $userid): int {
         global $DB;
         $count = $DB->count_records(self::TABLE, ['userid' => $userid]);
@@ -69,6 +91,11 @@ class moodle_store implements store {
         return $count;
     }
 
+    /**
+     * Deletes the rows received before the timestamp.
+     *
+     * @param int $timestamp Unix timestamp.
+     */
     public function delete_received_before(int $timestamp): int {
         global $DB;
         $count = $DB->count_records_select(self::TABLE, 'receivedat < :ts', ['ts' => $timestamp]);
@@ -76,6 +103,9 @@ class moodle_store implements store {
         return $count;
     }
 
+    /**
+     * Deletes every stored row.
+     */
     public function delete_all(): int {
         global $DB;
         $count = $DB->count_records(self::TABLE);
@@ -83,6 +113,12 @@ class moodle_store implements store {
         return $count;
     }
 
+    /**
+     * Counts one outcome of the receiver in the hour containing the given time.
+     *
+     * @param string $outcome Outcome code.
+     * @param int $now Current unix time.
+     */
     public function count_outcome(string $outcome, int $now): void {
         global $DB;
         $hour = $now - ($now % 3600);
@@ -95,10 +131,18 @@ class moodle_store implements store {
         try {
             $DB->insert_record(self::STAT, (object) ($params + ['cnt' => 1]), false);
         } catch (\dml_write_exception $e) {
-            $DB->execute('UPDATE {' . self::STAT . '} SET cnt = cnt + 1 WHERE hourstart = :hourstart AND outcome = :outcome', $params);
+            $DB->execute(
+                'UPDATE {' . self::STAT . '} SET cnt = cnt + 1 WHERE hourstart = :hourstart AND outcome = :outcome',
+                $params
+            );
         }
     }
 
+    /**
+     * Totals of each receiver outcome since the timestamp.
+     *
+     * @param int $since Unix timestamp.
+     */
     public function outcome_counts_since(int $since): array {
         global $DB;
         $rows = $DB->get_records_sql(
@@ -112,11 +156,21 @@ class moodle_store implements store {
         return $counts;
     }
 
+    /**
+     * Counts the activity rows received since the timestamp.
+     *
+     * @param int $since Unix timestamp.
+     */
     public function count_events_since(int $since): int {
         global $DB;
         return $DB->count_records_select(self::TABLE, 'receivedat >= :since', ['since' => $since]);
     }
 
+    /**
+     * Removes the counter rows older than the timestamp.
+     *
+     * @param int $timestamp Unix timestamp.
+     */
     public function delete_stats_before(int $timestamp): void {
         global $DB;
         $DB->delete_records_select(self::STAT, 'hourstart < :ts', ['ts' => $timestamp]);
