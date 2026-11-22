@@ -40,7 +40,7 @@ $string['continuetoxentree'] = 'Lanjut ke Xentree';
 $string['credential_privatekeypem'] = 'Kunci privat (penandatanganan peluncuran)';
 $string['credential_webhooksecret'] = 'Secret webhook';
 $string['credential_webhooksecretprev'] = 'Secret webhook sebelumnya';
-$string['credentialfiledesc'] = 'Path absolut file <strong>di luar web root</strong> yang berisi nilainya. Lebih disarankan daripada menyimpannya di database. Nilai yang dipaksakan di config.php lebih diutamakan daripada file, dan file lebih diutamakan daripada database. Contoh untuk config.php: <code>$CFG->forced_plugin_settings[\'local_xentreeconnect\'] = [\'privatekeypem\' => file_get_contents(\'/etc/moodle/xentree.pem\')];</code>';
+$string['credentialfiledesc'] = 'Path absolut file <strong>di luar web root</strong> yang berisi nilainya. Ini pilihan yang lebih aman: nilai yang disimpan di halaman ini tersimpan sebagai teks biasa di database Moodle, dapat dilihat administrator situs, dan ikut dalam cadangan database. Nilai yang dipaksakan di config.php lebih diutamakan daripada file, dan file lebih diutamakan daripada database. Contoh untuk config.php: <code>$CFG->forced_plugin_settings[\'local_xentreeconnect\'] = [\'{$a}\' => trim(file_get_contents(\'/etc/moodle-secrets/xentree-value\'))];</code>';
 $string['credentialnotset'] = 'belum diisi';
 $string['credentialset'] = 'terisi';
 $string['credentialsource'] = '{$a->name}: {$a->state} (sumber: {$a->source})';

@@ -40,7 +40,7 @@ $string['continuetoxentree'] = 'Continue to Xentree';
 $string['credential_privatekeypem'] = 'Private key (launch signing)';
 $string['credential_webhooksecret'] = 'Webhook secret';
 $string['credential_webhooksecretprev'] = 'Previous webhook secret';
-$string['credentialfiledesc'] = 'Absolute path of a file <strong>outside the web root</strong> that contains the value. Preferred over saving it in the database. A value forced in config.php wins over the file, and the file wins over the database. Example for config.php: <code>$CFG->forced_plugin_settings[\'local_xentreeconnect\'] = [\'privatekeypem\' => file_get_contents(\'/etc/moodle/xentree.pem\')];</code>';
+$string['credentialfiledesc'] = 'Absolute path of a file <strong>outside the web root</strong> that contains the value. This is the safer option: a value saved on this page is stored as plain text in the Moodle database, can be seen by site administrators and is included in database backups. A value forced in config.php wins over the file, and the file wins over the database. Example for config.php: <code>$CFG->forced_plugin_settings[\'local_xentreeconnect\'] = [\'{$a}\' => trim(file_get_contents(\'/etc/moodle-secrets/xentree-value\'))];</code>';
 $string['credentialnotset'] = 'not set';
 $string['credentialset'] = 'set';
 $string['credentialsource'] = '{$a->name}: {$a->state} (source: {$a->source})';

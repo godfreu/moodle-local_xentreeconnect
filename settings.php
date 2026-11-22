@@ -99,7 +99,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/privatekeyfile',
         get_string('privatekeyfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'privatekeypem'),
         '',
         PARAM_RAW_TRIMMED
     ));
@@ -127,7 +127,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/webhooksecretfile',
         get_string('webhooksecretfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'webhooksecret'),
         '',
         PARAM_RAW_TRIMMED
     ));
@@ -135,7 +135,7 @@ if ($hassiteconfig) {
     $settings->add(new admin_setting_configtext(
         'local_xentreeconnect/webhooksecretprevfile',
         get_string('webhooksecretprevfile', 'local_xentreeconnect'),
-        get_string('credentialfiledesc', 'local_xentreeconnect'),
+        get_string('credentialfiledesc', 'local_xentreeconnect', 'webhooksecretprev'),
         '',
         PARAM_RAW_TRIMMED
     ));

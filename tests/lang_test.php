@@ -102,4 +102,34 @@ final class lang_test extends \basic_testcase {
         $this->assertArrayHasKey('problem_missing', $en);
         $this->assertArrayHasKey('problem_invalid', $en);
     }
+
+    public function test_each_credential_file_help_names_its_own_setting_in_the_config_php_example(): void {
+        $source = file_get_contents(dirname(__DIR__) . '/settings.php');
+        $expected = [
+            'privatekeyfile' => 'privatekeypem',
+            'webhooksecretfile' => 'webhooksecret',
+            'webhooksecretprevfile' => 'webhooksecretprev',
+        ];
+        foreach ($expected as $label => $item) {
+            $pattern = "/get_string\('$label', 'local_xentreeconnect'\),\s*get_string\('credentialfiledesc', 'local_xentreeconnect', '([a-z]+)'\)/";
+            $this->assertSame(1, preg_match($pattern, $source, $m), $label);
+            $this->assertSame($item, $m[1], $label);
+        }
+        $this->assertCount(3, array_unique(array_values($expected)));
+
+        foreach (['en', 'id'] as $lang) {
+            $help = $this->strings($lang)['credentialfiledesc'];
+            $this->assertStringContainsString("'{\$a}' =>", $help, $lang);
+            $this->assertStringContainsString('trim(file_get_contents(', $help, $lang);
+            // The example is built from the setting's own key, never a hard-coded one.
+            foreach ($expected as $item) {
+                $this->assertStringNotContainsString("'$item' =>", $help, "$lang hard-codes $item");
+            }
+            foreach (['webhooksecret', 'webhooksecretprev'] as $item) {
+                $rendered = str_replace('{$a}', $item, $help);
+                $this->assertStringContainsString("'$item' =>", $rendered, $lang);
+                $this->assertStringNotContainsString('privatekeypem', $rendered, $lang);
+            }
+        }
+    }
 }
